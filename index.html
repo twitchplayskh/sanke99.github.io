@@ -3,1804 +3,1712 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lifeline — Twitch Command Reference</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<title>SNAKE 99</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{
+    --ink:#0A0A0C;
+    --ink-2:#161619;
+    --ink-3:#232327;
+    --paper:#F4F2ED;
+    --core-bg:#C6D6A4;
+    --core-fg:#33421E;
+    --core-fg-dim: rgba(51,66,30,.32);
+    --signal:#FF2A44;
+    --volt:#2B6BFF;
+    --gold:#FFD23F;
+    --pink:#FF3D81;
 
-  body {
-    background: #0a0a0f;
-    color: #e0e0e0;
-    font-family: 'Rajdhani', sans-serif;
-    min-height: 100vh;
-    padding: 0;
-  }
-
-  .page {
-    width: 1400px;
-    margin: 0 auto;
-    padding: 40px 40px 60px;
-    background: #0a0a0f;
-  }
-
-  /* ── Beta Toggle Button ── */
-  #beta-toggle {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #0d1117;
-    border: 1px solid #1e2a3a;
-    border-radius: 8px;
-    padding: 8px 14px 8px 10px;
-    cursor: pointer;
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #37474f;
-    transition: all 0.2s ease;
-    user-select: none;
-  }
-  #beta-toggle:hover {
-    border-color: #2a3a4a;
-    color: #546e7a;
-  }
-  #beta-toggle.active {
-    border-color: rgba(255, 193, 7, 0.4);
-    background: rgba(255, 193, 7, 0.05);
-    color: #ffca28;
-    box-shadow: 0 0 16px rgba(255, 193, 7, 0.1);
-  }
-  .beta-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #263238;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-  }
-  #beta-toggle.active .beta-dot {
-    background: #ffca28;
-    box-shadow: 0 0 6px #ffca28;
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
-  @keyframes pulse-dot {
-    0%, 100% { box-shadow: 0 0 6px #ffca28; }
-    50% { box-shadow: 0 0 12px #ffca28, 0 0 20px rgba(255,193,7,0.4); }
-  }
-  .beta-label { line-height: 1; }
-
-  /* ── Beta notification toast ── */
-  #beta-toast {
-    position: fixed;
-    top: 60px;
-    right: 16px;
-    z-index: 9998;
-    background: rgba(255,193,7,0.08);
-    border: 1px solid rgba(255,193,7,0.25);
-    border-radius: 8px;
-    padding: 10px 16px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: #ffe082;
-    letter-spacing: 0.5px;
-    opacity: 0;
-    transform: translateY(-6px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    pointer-events: none;
-    max-width: 220px;
-    line-height: 1.5;
-  }
-  #beta-toast.show {
-    opacity: 1;
-    transform: translateY(0);
+    --f-display: 'Anton', Impact, 'Arial Narrow', sans-serif;
+    --f-pixel: 'Press Start 2P', 'Courier New', monospace;
+    --f-body: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
-  /* ── Header ── */
-  .header {
-    text-align: center;
-    padding: 36px 0 28px;
-    border-bottom: 1px solid #1e2a4a;
-    margin-bottom: 36px;
-    position: relative;
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:var(--ink); color:var(--paper);
+    font-family:var(--f-body);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
   }
-  .header::before {
-    content: '';
-    position: absolute;
-    bottom: -1px; left: 50%; transform: translateX(-50%);
-    width: 200px; height: 2px;
-    background: linear-gradient(90deg, transparent, #4fc3f7, transparent);
+  #app{ position:relative; width:100vw; height:100vh; }
+
+  button{
+    font-family:inherit; border:none; cursor:pointer; background:none; color:inherit;
   }
-  .logo-line {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 8px;
-    color: #4fc3f7;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .title {
-    font-family: 'Orbitron', monospace;
-    font-size: 52px;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: 4px;
-    line-height: 1;
-    text-shadow: 0 0 40px rgba(79,195,247,0.3);
-  }
-  .title span { color: #4fc3f7; }
-  .subtitle {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 16px;
-    color: #607d8b;
-    letter-spacing: 3px;
-    margin-top: 10px;
-    text-transform: uppercase;
-  }
-  .ps2-note {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 16px;
-    background: rgba(79,195,247,0.07);
-    border: 1px solid rgba(79,195,247,0.2);
-    border-radius: 6px;
-    padding: 8px 20px;
-    font-size: 14px;
-    color: #90caf9;
-    letter-spacing: 1px;
-  }
-  .circle-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 22px; height: 22px;
-    border: 2px solid #ef5350;
-    border-radius: 50%;
-    font-size: 12px; color: #ef5350;
-    font-weight: 700; flex-shrink: 0;
+  button:focus-visible, [tabindex]:focus-visible{
+    outline:3px solid var(--volt); outline-offset:3px;
   }
 
-  /* ── BETA: Search bar ── */
-  #search-bar-wrap {
-    display: none;
-    margin-bottom: 20px;
-    position: relative;
+  .screen{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition: opacity .45s ease;
   }
-  body.beta-on #search-bar-wrap { display: block; }
-  #search-input {
-    width: 100%;
-    background: #0d1117;
-    border: 1px solid rgba(255,193,7,0.2);
-    border-radius: 8px;
-    padding: 12px 16px 12px 44px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 13px;
-    color: #e0e0e0;
-    outline: none;
-    letter-spacing: 0.5px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  #search-input::placeholder { color: #37474f; }
-  #search-input:focus {
-    border-color: rgba(255,193,7,0.4);
-    box-shadow: 0 0 12px rgba(255,193,7,0.08);
-  }
-  .search-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #37474f;
-    font-size: 16px;
-    pointer-events: none;
-    font-family: 'Share Tech Mono', monospace;
-  }
-  #search-count {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: #546e7a;
-  }
-  .search-highlight {
-    background: rgba(255,193,7,0.25) !important;
-    border-color: rgba(255,193,7,0.5) !important;
-    color: #fff !important;
-  }
-  .search-hidden { display: none !important; }
+  .screen.active{ opacity:1; pointer-events:auto; }
 
-  /* ── Grid ── */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 24px;
-    margin-bottom: 24px;
+  /* ============ shared bg texture ============ */
+  .bg-streaks{
+    position:absolute; inset:0; overflow:hidden; z-index:0;
   }
-  .grid-wide { grid-template-columns: 1fr 1fr; }
-  .grid-full { grid-template-columns: 1fr; }
-
-  /* ── Section ── */
-  .section {
-    background: #0d1117;
-    border: 1px solid #1e2a3a;
-    border-radius: 10px;
-    overflow: hidden;
+  .bg-streaks span{
+    position:absolute; height:2px; width:140%; left:-20%;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+    transform:rotate(-8deg);
+    animation: streak-move 7s linear infinite;
   }
-  .section-head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 18px;
-    border-bottom: 1px solid #1e2a3a;
+  @media (prefers-reduced-motion: reduce){
+    .bg-streaks span{ animation:none; opacity:.3; }
   }
-  .section-icon {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700;
-    flex-shrink: 0;
-  }
-  .section-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-  .section-count {
-    margin-left: auto;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: #37474f;
-    letter-spacing: 1px;
-  }
-  .section-body { padding: 14px 18px 16px; }
-
-  /* Colour themes */
-  .c-blue  .section-head { background: rgba(33,150,243,0.06); }
-  .c-blue  .section-icon { background: rgba(33,150,243,0.15); color: #42a5f5; }
-  .c-blue  .section-title { color: #42a5f5; }
-
-  .c-teal  .section-head { background: rgba(0,188,212,0.06); }
-  .c-teal  .section-icon { background: rgba(0,188,212,0.15); color: #26c6da; }
-  .c-teal  .section-title { color: #26c6da; }
-
-  .c-green .section-head { background: rgba(76,175,80,0.06); }
-  .c-green .section-icon { background: rgba(76,175,80,0.15); color: #66bb6a; }
-  .c-green .section-title { color: #66bb6a; }
-
-  .c-amber .section-head { background: rgba(255,193,7,0.06); }
-  .c-amber .section-icon { background: rgba(255,193,7,0.15); color: #ffca28; }
-  .c-amber .section-title { color: #ffca28; }
-
-  .c-red   .section-head { background: rgba(244,67,54,0.06); }
-  .c-red   .section-icon { background: rgba(244,67,54,0.15); color: #ef5350; }
-  .c-red   .section-title { color: #ef5350; }
-
-  .c-purple .section-head { background: rgba(156,39,176,0.06); }
-  .c-purple .section-icon { background: rgba(156,39,176,0.15); color: #ab47bc; }
-  .c-purple .section-title { color: #ab47bc; }
-
-  .c-coral .section-head { background: rgba(255,112,67,0.06); }
-  .c-coral .section-icon { background: rgba(255,112,67,0.15); color: #ff7043; }
-  .c-coral .section-title { color: #ff7043; }
-
-  /* ── Pill tags ── */
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    padding: 3px 10px;
-    border-radius: 4px;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-    border: 1px solid transparent;
-    cursor: text;
-    user-select: text;
-    transition: font-size 0.15s ease, padding 0.15s ease, filter 0.15s ease;
-    position: relative;
-  }
-  .tag:focus {
-    outline: none;
-    font-size: 16px;
-    padding: 5px 14px;
-    filter: brightness(1.35);
-  }
-  .tag-blue   { background: rgba(33,150,243,0.1);  color: #90caf9; border-color: rgba(33,150,243,0.2); }
-  .tag-teal   { background: rgba(0,188,212,0.1);   color: #80deea; border-color: rgba(0,188,212,0.2); }
-  .tag-green  { background: rgba(76,175,80,0.1);   color: #a5d6a7; border-color: rgba(76,175,80,0.2); }
-  .tag-amber  { background: rgba(255,193,7,0.1);   color: #ffe082; border-color: rgba(255,193,7,0.2); }
-  .tag-red    { background: rgba(244,67,54,0.1);   color: #ef9a9a; border-color: rgba(244,67,54,0.2); }
-  .tag-purple { background: rgba(156,39,176,0.1);  color: #ce93d8; border-color: rgba(156,39,176,0.2); }
-  .tag-coral  { background: rgba(255,112,67,0.1);  color: #ffab91; border-color: rgba(255,112,67,0.2); }
-
-  /* ── BETA: Copy button on tags ── */
-  .copy-btn {
-    display: none;
-    position: absolute;
-    right: -2px;
-    top: -2px;
-    width: 16px; height: 16px;
-    border-radius: 3px;
-    background: rgba(255,255,255,0.15);
-    border: none;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    color: rgba(255,255,255,0.7);
-    transition: background 0.15s;
-    padding: 0;
-    font-family: monospace;
-    line-height: 1;
-  }
-  .copy-btn:hover { background: rgba(255,255,255,0.28); color: #fff; }
-  .copy-btn.copied { background: rgba(76,175,80,0.5); color: #a5d6a7; }
-  body.beta-on .tag { position: relative; }
-  body.beta-on .tag:hover .copy-btn,
-  body.beta-on .tag:focus .copy-btn { display: flex; }
-
-  /* ── Two-column pill list ── */
-  .col2 { columns: 2; column-gap: 10px; }
-  .col3 { columns: 3; column-gap: 10px; }
-  .col2 .tag, .col3 .tag {
-    display: block;
-    break-inside: avoid;
-    margin-bottom: 5px;
+  @keyframes streak-move{
+    from{ transform:rotate(-8deg) translateX(-10%); }
+    to{ transform:rotate(-8deg) translateX(10%); }
   }
 
-  /* ── Words grid (tiny pills) ── */
-  .word-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-
-  /* ── BETA: Alpha-grouped word grid ── */
-  .word-grid-alpha { display: none; }
-  body.beta-on .word-grid-alpha { display: block; }
-  body.beta-on .word-grid-plain { display: none; }
-  .alpha-group { margin-bottom: 12px; }
-  .alpha-group:last-child { margin-bottom: 0; }
-  .alpha-label {
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #263238;
-    margin-bottom: 5px;
-    text-transform: uppercase;
+  /* ============ TITLE SCREEN ============ */
+  #screen-title{ background:var(--ink); }
+  .title-wrap{
+    position:relative; z-index:1; width:min(1100px, 92vw);
+    display:grid; grid-template-columns: 1.35fr .65fr; align-items:end; gap:2vw;
   }
-  .alpha-group .word-grid { gap: 4px; }
-
-  .word {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 3px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
-    color: #78909c;
-    white-space: nowrap;
-    cursor: text;
-    user-select: text;
-    transition: font-size 0.15s ease, padding 0.15s ease, color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  .title-mark{
+    position:relative;
+    transform: skewY(-3deg);
   }
-  .word:focus {
-    outline: none;
-    font-size: 15px;
-    padding: 4px 12px;
-    color: #cfd8dc;
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(255,255,255,0.2);
+  .title-mark .eyebrow{
+    font-family:var(--f-pixel); font-size:11px; letter-spacing:2px;
+    color:var(--core-bg); margin-bottom:14px; display:block;
+  }
+  .title-mark h1{
+    font-family:var(--f-display); font-weight:400;
+    font-size: clamp(64px, 11vw, 148px);
+    line-height:.86; margin:0; color:var(--paper);
+    letter-spacing:1px;
+  }
+  .title-mark h1 .ninety-nine{
+    color:var(--signal); display:inline-block; transform: rotate(-2deg) translateX(6px);
+  }
+  .title-sub{
+    font-size:15px; max-width:34ch; color:rgba(244,242,237,.6); margin-top:18px; line-height:1.5;
   }
 
-  /* ── How to use ── */
-  .howto {
-    background: rgba(79,195,247,0.04);
-    border: 1px solid rgba(79,195,247,0.15);
-    border-radius: 10px;
-    padding: 20px 28px;
-    margin-bottom: 24px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+  .title-actions{
+    display:flex; flex-direction:column; align-items:flex-end; gap:14px;
+    transform: skewY(-3deg);
   }
-  .step { display: flex; align-items: flex-start; gap: 12px; }
-  .step-num {
-    font-family: 'Orbitron', monospace;
-    font-size: 22px;
-    font-weight: 900;
-    color: rgba(79,195,247,0.3);
-    line-height: 1;
-    flex-shrink: 0;
-    width: 30px;
+  .btn-play{
+    font-family:var(--f-display); font-weight:400; font-size:34px;
+    color:var(--ink); background:var(--volt);
+    padding:16px 40px 14px; letter-spacing:1px;
+    clip-path: polygon(0 0, 100% 0, 94% 100%, 6% 100%);
+    transition: transform .15s ease, background .15s ease;
   }
-  .step-text { font-size: 14px; color: #90a4ae; line-height: 1.5; }
-  .step-text strong { color: #e0e0e0; font-weight: 600; display: block; margin-bottom: 2px; }
+  .btn-play:hover, .btn-play:focus-visible{ transform: translateX(-6px) scale(1.02); background:var(--gold); }
+  .btn-play:active{ transform: translateX(-2px) scale(.98); }
 
-  /* ── BETA: Collapsible sections ── */
-  .section-head { cursor: default; }
-  body.beta-on .collapsible .section-head { cursor: pointer; user-select: none; }
-  body.beta-on .collapsible .section-head:hover { background: rgba(255,255,255,0.02); }
-  .collapse-arrow {
-    display: none;
-    margin-left: 8px;
-    font-size: 10px;
-    color: #37474f;
-    transition: transform 0.2s ease;
-    flex-shrink: 0;
+  .btn-ghost{
+    font-size:13px; color:rgba(244,242,237,.55); letter-spacing:.5px;
+    padding:6px 4px; border-bottom:1px solid rgba(244,242,237,.2);
   }
-  body.beta-on .collapsible .collapse-arrow { display: block; }
-  body.beta-on .collapsible.collapsed .collapse-arrow { transform: rotate(-90deg); }
-  body.beta-on .collapsible.collapsed .section-body { display: none; }
+  .btn-ghost:hover{ color:var(--paper); border-color:var(--paper); }
 
-  /* ── BETA: Sticky section headers ── */
-  body.beta-on .sticky-head .section-head {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: #0d1117;
-    border-bottom: 1px solid #1e2a3a;
+  /* ============ IDENTITY PANEL (title screen) ============ */
+  .identity-box{
+    display:flex; flex-direction:column; align-items:flex-end; gap:7px;
+    margin-bottom:8px;
   }
-  body.beta-on .c-blue.sticky-head  .section-head { background: #0b0f17; }
-  body.beta-on .c-teal.sticky-head  .section-head { background: #0b0f17; }
-  body.beta-on .c-green.sticky-head .section-head { background: #0b0f17; }
-  body.beta-on .c-amber.sticky-head .section-head { background: #0b0f17; }
-  body.beta-on .c-teal.sticky-head  .section-head { background: #0b0f17; }
+  .identity-input{
+    background:var(--ink-2); border:1px solid rgba(244,242,237,.15); color:var(--paper);
+    font-family:var(--f-body); font-size:13px; padding:9px 12px; text-align:right;
+    width:230px; letter-spacing:.3px;
+  }
+  .identity-input:focus{ outline:none; border-color:var(--volt); }
+  .identity-input::placeholder{ color:rgba(244,242,237,.35); }
+  .identity-code-row{ display:flex; align-items:center; gap:10px; }
+  .identity-code-label{ font-family:var(--f-pixel); font-size:8px; letter-spacing:1.5px; color:rgba(244,242,237,.4); }
+  .identity-reveal{
+    font-family:var(--f-pixel); font-size:8px; letter-spacing:1px; color:var(--gold);
+    border-bottom:1px solid rgba(255,210,63,.4); padding:2px 0;
+  }
+  .identity-reveal:hover{ color:var(--paper); border-color:var(--paper); }
+  .identity-code{
+    font-family:var(--f-pixel); font-size:14px; letter-spacing:3px; color:rgba(244,242,237,.28);
+    user-select:none; transition: color .2s ease;
+  }
+  .identity-code.revealed{ color:var(--volt); user-select:all; }
+  .identity-stats{ font-size:11px; color:rgba(244,242,237,.45); letter-spacing:.2px; }
+  .identity-stats b{ color:var(--paper); font-weight:600; }
+  .identity-restore-toggle{
+    font-size:11px; color:rgba(244,242,237,.4); border-bottom:1px dotted rgba(244,242,237,.3);
+    padding:2px 0; margin-top:2px;
+  }
+  .identity-restore-toggle:hover{ color:var(--paper); }
+  .identity-restore-panel{
+    display:flex; flex-direction:column; align-items:flex-end; gap:7px; margin-top:2px;
+  }
+  .identity-restore-row{ display:flex; gap:8px; }
+  .identity-restore-row .identity-input{ width:130px; text-align:left; letter-spacing:1px; }
+  .identity-restore-btn{
+    font-family:var(--f-pixel); font-size:9px; letter-spacing:1px; color:var(--ink);
+    background:var(--gold); padding:0 16px;
+  }
+  .identity-restore-btn:hover{ background:var(--paper); }
+  .identity-restore-msg{ font-size:11px; color:rgba(244,242,237,.5); max-width:230px; text-align:right; }
+  .identity-restore-msg.err{ color:var(--signal); }
+  .identity-restore-msg.ok{ color:var(--gold); }
 
-  /* ── Footer ── */
-  .footer {
-    text-align: center;
-    padding-top: 24px;
-    border-top: 1px solid #1e2a3a;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: #263238;
-    letter-spacing: 2px;
-  }
-
-  /* ══════════════════════════════════
-     BETA v3 — NEW FEATURE STYLES
-  ══════════════════════════════════ */
-
-  /* 1 ── Changelog tab */
-  #changelog-tab {
-    display: none;
-    position: fixed;
-    top: 96px;
-    right: 16px;
-    z-index: 9997;
-    width: 340px;
-    background: #0d1117;
-    border: 1px solid rgba(255,193,7,0.25);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-    animation: slideIn 0.2s ease;
-  }
-  @keyframes slideIn {
-    from { opacity:0; transform: translateY(-8px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
-  body.beta-on #changelog-tab.open { display: block; }
-  #changelog-tab .cl-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    border-bottom: 1px solid rgba(255,193,7,0.15);
-    background: rgba(255,193,7,0.05);
-  }
-  #changelog-tab .cl-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #ffca28;
-  }
-  #changelog-tab .cl-close {
-    background: none;
-    border: none;
-    color: #546e7a;
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
-    padding: 0 2px;
-    transition: color 0.15s;
-  }
-  #changelog-tab .cl-close:hover { color: #ffca28; }
-  #changelog-tab .cl-body {
-    padding: 14px;
-    max-height: 420px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #1e2a3a transparent;
-  }
-  .cl-version {
-    margin-bottom: 16px;
-  }
-  .cl-version:last-child { margin-bottom: 0; }
-  .cl-ver-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  .cl-ver-badge {
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    padding: 2px 8px;
-    border-radius: 3px;
-    background: rgba(255,193,7,0.15);
-    color: #ffca28;
-    border: 1px solid rgba(255,193,7,0.3);
-  }
-  .cl-ver-badge.prev {
-    background: rgba(79,195,247,0.1);
-    color: #4fc3f7;
-    border-color: rgba(79,195,247,0.25);
-  }
-  .cl-ver-date {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    color: #37474f;
-  }
-  .cl-items { list-style: none; padding: 0; margin: 0; }
-  .cl-items li {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: #78909c;
-    padding: 3px 0 3px 14px;
-    position: relative;
-    line-height: 1.5;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-  }
-  .cl-items li:last-child { border-bottom: none; }
-  .cl-items li::before {
-    content: '▸';
-    position: absolute;
-    left: 0;
-    color: rgba(255,193,7,0.4);
-    font-size: 9px;
-    top: 4px;
-  }
-  .cl-items li.new-feat::before { color: rgba(76,175,80,0.6); }
-  .cl-items li span { color: #ffe082; }
-
-  /* Changelog open button */
-  #changelog-btn {
-    display: none;
-    position: fixed;
-    top: 56px;
-    right: 16px;
-    z-index: 9999;
-    background: #0d1117;
-    border: 1px solid #1e2a3a;
-    border-radius: 8px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #37474f;
-    transition: all 0.2s ease;
-    user-select: none;
-  }
-  body.beta-on #changelog-btn { display: flex; align-items: center; gap: 6px; }
-  #changelog-btn:hover { border-color: rgba(255,193,7,0.3); color: #ffca28; }
-  #changelog-btn.open { border-color: rgba(255,193,7,0.4); color: #ffca28; background: rgba(255,193,7,0.05); }
-
-  /* 2 ── Font size slider */
-  #font-ctrl {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    right: 16px;
-    z-index: 9999;
-    background: #0d1117;
-    border: 1px solid rgba(255,193,7,0.2);
-    border-radius: 8px;
-    padding: 8px 12px;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    color: #546e7a;
-    letter-spacing: 1px;
-  }
-  body.beta-on #font-ctrl { display: flex; }
-  #font-ctrl label { white-space: nowrap; }
-  #font-size-slider {
-    width: 80px;
-    accent-color: #ffca28;
-    cursor: pointer;
-  }
-  #font-size-val { color: #ffca28; min-width: 24px; text-align: right; }
-
-  /* 3 ── Highlight mode (random pastel glow on words) */
-  body.beta-highlight .word:not(.search-hidden) {
-    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+  .title-mini-board{
+    position:absolute; right:6vw; top:10vh; z-index:0; opacity:.5;
   }
 
-  /* 4 ── Bookmark pinned tags */
-  .tag.bookmarked {
-    box-shadow: 0 0 0 1.5px rgba(255,193,7,0.6) !important;
+  .settings-corner{
+    position:absolute; bottom:24px; left:24px; z-index:2;
+    display:flex; gap:18px; align-items:center;
   }
-  body.beta-on .tag { cursor: pointer; }
-  #bookmarks-panel {
-    display: none;
-    position: fixed;
-    bottom: 60px;
-    right: 16px;
-    z-index: 9998;
-    background: #0d1117;
-    border: 1px solid rgba(255,193,7,0.2);
-    border-radius: 8px;
-    padding: 10px 14px;
-    max-width: 280px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  body.beta-on #bookmarks-panel.has-items { display: block; }
-  #bookmarks-panel .bm-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: #ffca28;
-    margin-bottom: 8px;
-  }
-  #bookmarks-panel .bm-list { display: flex; flex-wrap: wrap; gap: 4px; }
-  #bookmarks-panel .bm-item {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: #ffe082;
-    background: rgba(255,193,7,0.08);
-    border: 1px solid rgba(255,193,7,0.2);
-    border-radius: 3px;
-    padding: 2px 7px;
-    cursor: pointer;
-  }
-  #bookmarks-panel .bm-item:hover { background: rgba(255,193,7,0.15); }
+  .toggle-row{ display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(244,242,237,.55); }
+  .toggle-row input{ accent-color:var(--volt); width:15px; height:15px; }
 
-  /* 5 ── Stats panel */
-  #stats-panel {
-    display: none;
-    background: rgba(79,195,247,0.04);
-    border: 1px solid rgba(79,195,247,0.15);
-    border-radius: 10px;
-    padding: 16px 24px;
-    margin-bottom: 20px;
-    grid-template-columns: repeat(6,1fr);
-    gap: 12px;
-  }
-  body.beta-on #stats-panel { display: grid; }
-  .stat-cell { text-align: center; }
-  .stat-num {
-    font-family: 'Orbitron', monospace;
-    font-size: 22px;
-    font-weight: 900;
-    color: #4fc3f7;
-    line-height: 1;
-  }
-  .stat-lbl {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 9px;
-    color: #37474f;
-    letter-spacing: 1px;
-    margin-top: 4px;
+  /* ============ GAME SCREEN ============ */
+  #screen-game{ background:var(--ink); }
+  .game-arena{
+    position:relative; z-index:1; width:100%; height:100%;
+    display:flex; flex-direction:column; gap:18px;
+    padding:20px 26px;
   }
 
-  /* 6 ── Section progress bar (shows completeness via colour) */
-  .section-progress {
-    display: none;
-    height: 2px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 0 0 10px 10px;
-    overflow: hidden;
+  .hud-top{
+    position:relative;
+    display:flex; align-items:stretch; height:84px;
+    background:var(--ink-2);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 1.2% 100%);
+    box-shadow: 0 10px 26px rgba(0,0,0,.35);
   }
-  body.beta-on .section-progress { display: block; }
-  .section-progress-fill {
-    height: 100%;
-    border-radius: 0 0 10px 10px;
-    transition: width 0.5s ease;
+  .hud-top::after{
+    content:""; position:absolute; left:0; right:0; bottom:-3px; height:3px;
+    background: linear-gradient(90deg, var(--mode-accent, var(--volt)), var(--pink) 55%, transparent);
+  }
+  .hud-seg{
+    display:flex; align-items:center; gap:14px;
+    padding:0 26px; border-left:1px solid rgba(255,255,255,.07);
+  }
+  .hud-seg:first-child{ border-left:none; padding-left:28px; }
+  .hud-seg-feed{ margin-left:auto; width:280px; }
+
+  .hud-rank{ position:relative; display:flex; align-items:center; gap:14px; }
+  .hud-rank .num{
+    font-family:var(--f-display); font-weight:400;
+    font-size: clamp(40px, 3.6vw, 56px); line-height:.8;
+    color:var(--paper); transition: color .3s ease; transform: skewX(-4deg);
+  }
+  .hud-rank .num.tier-mid{ color:var(--gold); }
+  .hud-rank .num.tier-top10{ color:var(--signal); }
+  .hud-rank .num.tier-final{ color:var(--signal); animation: pulse-final 1s ease-in-out infinite; }
+  @keyframes pulse-final{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.06);} }
+  .hud-rank .meta{ display:flex; flex-direction:column; gap:5px; }
+  .hud-rank .lbl{
+    font-family:var(--f-pixel); font-size:9px; letter-spacing:1.5px; color:rgba(244,242,237,.5);
+  }
+  .hud-remaining{
+    font-family:var(--f-pixel); font-size:9px; letter-spacing:1px; color:rgba(244,242,237,.4);
+  }
+  .hud-mode{
+    font-family:var(--f-pixel); font-size:9px; letter-spacing:1px; color:var(--mode-accent, var(--volt));
   }
 
-  /* 7 ── Keyboard shortcut tooltip */
-  .kb-tip {
-    display: none;
-    position: fixed;
-    bottom: 60px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.85);
-    border: 1px solid #1e2a3a;
-    border-radius: 8px;
-    padding: 10px 18px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: #78909c;
-    letter-spacing: 0.5px;
-    pointer-events: none;
-    z-index: 9990;
-    white-space: nowrap;
+  .hud-block{ display:flex; flex-direction:column; justify-content:center; gap:6px; }
+  .hud-block .lbl{ font-family:var(--f-pixel); font-size:9px; letter-spacing:1.5px; color:rgba(244,242,237,.45); }
+  .hud-block .val{ font-family:var(--f-display); font-size:19px; color:var(--paper); }
+
+  .meter-track{
+    width:170px; height:12px; background:var(--ink-3);
+    clip-path: polygon(0 0, 100% 0, 96% 100%, 0 100%);
+    overflow:hidden;
   }
-  body.beta-on .kb-tip.show { display: block; }
-  .kb-tip kbd {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 3px;
-    padding: 1px 5px;
-    color: #e0e0e0;
-    font-size: 10px;
+  .meter-fill{
+    height:100%; width:0%; background:linear-gradient(90deg, var(--volt), var(--pink));
+    transition: width .25s ease;
+  }
+  .meter-fill.full{ background:linear-gradient(90deg, var(--gold), var(--signal)); animation: meter-glow .6s ease-in-out infinite alternate; }
+  @keyframes meter-glow{ from{ filter:brightness(1);} to{ filter:brightness(1.4);} }
+
+  .feed{
+    width:100%; height:100%; overflow:hidden; position:relative;
+    display:flex; flex-direction:column; justify-content:center;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+  }
+  .feed-line{
+    font-family:var(--f-pixel); font-size:8px; line-height:1.85;
+    color:rgba(244,242,237,.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    animation: feed-in .35s ease;
+  }
+  .feed-line b{ color:var(--signal); font-weight:normal; }
+  .feed-line.by-player b{ color:var(--gold); }
+  @keyframes feed-in{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
+
+  .arena-row{
+    flex:1; min-height:0;
+    display:flex; align-items:center; justify-content:center; gap:clamp(24px, 4vw, 64px);
+    padding:10px 0;
+  }
+  .board-frame{ align-self:center; }
+  .rail{
+    --tile: clamp(44px, 4.6vw, 74px);
+    width: calc(7 * var(--tile) + 6 * 7px); flex-shrink:1;
+    display:grid; grid-template-columns: repeat(7, var(--tile)); grid-auto-rows: var(--tile);
+    gap:7px;
+  }
+  .bot-tile{ aspect-ratio: 1 / 1; }
+  .bot-tile{
+    position:relative; background:var(--ink-2);
+    border:1px solid rgba(255,255,255,.05);
+    overflow:hidden; transition: opacity .3s ease;
+  }
+  .bot-tile canvas{ display:block; width:100%; height:100%; image-rendering:pixelated; }
+  .bot-tile.empty{ opacity:.15; }
+  .bot-tile.peer{ box-shadow: inset 0 0 0 2px var(--volt); }
+  .bot-tile.peer::before{
+    content:"LIVE"; position:absolute; top:2px; left:2px; z-index:2;
+    font-family:var(--f-pixel); font-size:6px; color:var(--paper); background:var(--volt);
+    padding:1px 3px; letter-spacing:.5px;
+  }
+  .bot-tile .ko-badge{
+    position:absolute; inset:0;
+    background:rgba(255,42,68,.88);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-family:var(--f-pixel); color:var(--paper);
+    opacity:0; pointer-events:none; transition:background .4s ease;
+  }
+  .bot-tile.ko canvas{ filter:grayscale(1) brightness(.35); }
+  .bot-tile.ko .ko-badge{ opacity:1; animation: ko-pop .35s ease; }
+  .bot-tile.ko.settled .ko-badge{ background:rgba(8,8,10,.72); }
+  .bot-tile .ko-badge .ko-lbl{ font-size:7px; letter-spacing:.5px; opacity:.8; }
+  .bot-tile .ko-badge .ko-num{ font-family:var(--f-display); font-size:20px; line-height:1; margin-top:2px; }
+  @keyframes ko-pop{ from{ transform:scale(1.35); opacity:0; } to{ transform:scale(1); opacity:1; } }
+
+  .board-frame{
+    position:relative;
+    padding:22px;
+    background: var(--ink-2);
+    transform: rotate(-.6deg);
+    box-shadow: 0 30px 60px rgba(0,0,0,.5);
+    flex-shrink:0;
+  }
+  .board-frame::before{
+    content:""; position:absolute; inset:-8px;
+    border:2px solid rgba(255,255,255,.06);
+    pointer-events:none;
+  }
+  #board{
+    display:block; image-rendering:pixelated; background:var(--core-bg);
+    width: min(66vh, 620px); height: min(66vh, 620px);
+  }
+  .board-caption{
+    font-family:var(--f-pixel); font-size:9px; color:rgba(198,214,164,.7);
+    margin-top:10px; text-align:center; letter-spacing:1px;
   }
 
-  /* 8 ── Section jump nav */
-  #jump-nav {
-    display: none;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 16px;
-    padding: 10px 14px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 8px;
+  .danger-vignette{
+    position:absolute; inset:0; pointer-events:none; opacity:0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(255,42,68,.35) 100%);
+    transition: opacity .5s ease;
   }
-  body.beta-on #jump-nav { display: flex; }
-  .jump-btn {
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.03);
-    color: #546e7a;
-    transition: all 0.15s ease;
-    text-decoration: none;
-  }
-  .jump-btn:hover { background: rgba(255,255,255,0.07); color: #e0e0e0; border-color: rgba(255,255,255,0.15); }
+  .danger-vignette.on{ opacity:1; animation: vignette-pulse 1.4s ease-in-out infinite; }
+  @keyframes vignette-pulse{ 0%,100%{ opacity:.5;} 50%{ opacity:.9;} }
 
-  /* 9 ── Compact density toggle */
-  body.beta-compact .tag {
-    font-size: 10px !important;
-    padding: 2px 7px !important;
+  .flash-banner{
+    position:absolute; top:8%; left:50%; transform:translateX(-50%) rotate(-2deg) scale(.8);
+    font-family:var(--f-display); font-size:clamp(28px,5vw,54px);
+    color:var(--paper); background:var(--signal);
+    padding:6px 28px; letter-spacing:1px; opacity:0; z-index:5;
+    clip-path: polygon(3% 0, 100% 0, 97% 100%, 0 100%);
   }
-  body.beta-compact .word {
-    font-size: 10px !important;
-    padding: 1px 5px !important;
-  }
-  body.beta-compact .section-body { padding: 8px 14px 10px !important; }
-
-  #density-btn {
-    display: none;
-  }
-  body.beta-on #density-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #0d1117;
-    border: 1px solid #1e2a3a;
-    border-radius: 8px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #37474f;
-    transition: all 0.2s ease;
-    position: fixed;
-    bottom: 20px;
-    left: 16px;
-    z-index: 9999;
-  }
-  body.beta-on #density-btn:hover { border-color: rgba(79,195,247,0.3); color: #4fc3f7; }
-  body.beta-on #density-btn.active { border-color: rgba(79,195,247,0.4); color: #4fc3f7; background: rgba(79,195,247,0.05); }
-
-  /* 10 ── Random command button */
-  #random-btn {
-    display: none;
-  }
-  body.beta-on #random-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #0d1117;
-    border: 1px solid #1e2a3a;
-    border-radius: 8px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #37474f;
-    transition: all 0.2s ease;
-    position: fixed;
-    bottom: 20px;
-    left: 130px;
-    z-index: 9999;
-  }
-  body.beta-on #random-btn:hover { border-color: rgba(156,39,176,0.4); color: #ab47bc; }
-  .random-spotlight {
-    animation: spotlight 1.2s ease forwards;
-  }
-  @keyframes spotlight {
-    0%   { box-shadow: 0 0 0 0 rgba(156,39,176,0.8); transform: scale(1); }
-    30%  { box-shadow: 0 0 0 6px rgba(156,39,176,0.3); transform: scale(1.06); }
-    100% { box-shadow: 0 0 0 0 rgba(156,39,176,0); transform: scale(1); }
+  .flash-banner.show{ animation: banner-pop 1.4s ease forwards; }
+  @keyframes banner-pop{
+    0%{ opacity:0; transform:translateX(-50%) rotate(-2deg) scale(.7); }
+    15%{ opacity:1; transform:translateX(-50%) rotate(-2deg) scale(1.05); }
+    25%{ transform:translateX(-50%) rotate(-2deg) scale(1); }
+    80%{ opacity:1; }
+    100%{ opacity:0; transform:translateX(-50%) rotate(-2deg) scale(1); }
   }
 
-  /* 11 ── Export modal */
-  #export-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    background: rgba(0,0,0,0.7);
-    align-items: center;
-    justify-content: center;
-  }
-  body.beta-on #export-modal.open { display: flex; }
-  #export-modal .em-box {
-    background: #0d1117;
-    border: 1px solid rgba(255,193,7,0.25);
-    border-radius: 12px;
-    padding: 24px 28px;
-    width: 420px;
-    max-width: 90vw;
-  }
-  #export-modal .em-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #ffca28;
-    margin-bottom: 16px;
-  }
-  #export-modal textarea {
-    width: 100%;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 6px;
-    padding: 10px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 11px;
-    color: #90a4ae;
-    resize: none;
-    height: 200px;
-    outline: none;
-    letter-spacing: 0.3px;
-    line-height: 1.6;
-  }
-  .em-actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
-  .em-btn {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    padding: 8px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    border: 1px solid;
-    transition: all 0.15s ease;
-  }
-  .em-btn-primary { background: rgba(255,193,7,0.1); border-color: rgba(255,193,7,0.3); color: #ffca28; }
-  .em-btn-primary:hover { background: rgba(255,193,7,0.18); }
-  .em-btn-close { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: #546e7a; }
-  .em-btn-close:hover { color: #90a4ae; }
-
-  /* Export trigger button */
-  #export-btn {
-    display: none;
-  }
-  body.beta-on #export-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #0d1117;
-    border: 1px solid #1e2a3a;
-    border-radius: 8px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #37474f;
-    transition: all 0.2s ease;
-    position: fixed;
-    bottom: 20px;
-    left: 252px;
-    z-index: 9999;
-  }
-  body.beta-on #export-btn:hover { border-color: rgba(76,175,80,0.4); color: #66bb6a; }
-
-  /* 12 ── Phrase builder */
-  #phrase-builder {
-    display: none;
-    background: rgba(255,193,7,0.03);
-    border: 1px solid rgba(255,193,7,0.15);
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 20px;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  body.beta-on #phrase-builder { display: flex; }
-  #phrase-builder .pb-label {
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #546e7a;
-    flex-shrink: 0;
-  }
-  #phrase-output {
-    flex: 1;
-    min-width: 160px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,193,7,0.2);
-    border-radius: 6px;
-    padding: 7px 12px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 13px;
-    color: #ffe082;
-    letter-spacing: 1px;
-    min-height: 34px;
-    cursor: text;
-    transition: border-color 0.2s;
-    word-break: break-word;
-  }
-  #phrase-output:focus { outline: none; border-color: rgba(255,193,7,0.45); }
-  #phrase-output:empty::before { content: 'click words below to build a command…'; color: #263238; font-size: 11px; }
-  .pb-actions { display: flex; gap: 6px; flex-shrink: 0; }
-  .pb-btn {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    border: 1px solid;
-    transition: all 0.15s;
-    letter-spacing: 0.5px;
-  }
-  .pb-copy { background: rgba(255,193,7,0.08); border-color: rgba(255,193,7,0.25); color: #ffca28; }
-  .pb-copy:hover { background: rgba(255,193,7,0.15); }
-  .pb-clear { background: rgba(244,67,54,0.07); border-color: rgba(244,67,54,0.2); color: #ef5350; }
-  .pb-clear:hover { background: rgba(244,67,54,0.14); }
-
-  /* Make words clickable in phrase builder mode */
-  body.beta-on .word { cursor: pointer; }
-  body.beta-on .word:hover {
-    background: rgba(255,193,7,0.1);
-    border-color: rgba(255,193,7,0.3);
-    color: #ffe082;
+  .shake{ animation: shake-anim .32s ease; }
+  @keyframes shake-anim{
+    0%,100%{ transform:translate(0,0); }
+    25%{ transform:translate(-4px,3px); }
+    50%{ transform:translate(4px,-3px); }
+    75%{ transform:translate(-3px,-2px); }
   }
 
-  /* ── Howto block positioning in beta mode ── */
-  #howto-beta-wrap { display: none; }
-  body.beta-on #howto-beta-wrap { display: block; margin-bottom: 20px; }
-  body.beta-on #howto-block { margin-bottom: 0; }
-  /* In beta mode, move the howto into the wrap placeholder */
-
-  /* ── Mobile Responsive ── */
-  @media (max-width: 1440px) {
-    .page { width: 100%; }
+  .controls-hint{
+    position:absolute; bottom:18px; left:24px; font-family:var(--f-pixel);
+    font-size:9px; color:rgba(244,242,237,.35); letter-spacing:1px; z-index:2;
   }
 
-  @media (max-width: 1100px) {
-    .grid { grid-template-columns: 1fr 1fr; }
-    .grid-wide { grid-template-columns: 1fr; }
-    .howto { grid-template-columns: 1fr 1fr; gap: 16px; }
+  /* ============ RESULTS SCREEN ============ */
+  #screen-results{ background:var(--ink); }
+  .results-wrap{
+    position:relative; z-index:1; width:min(720px,90vw);
+    text-align:center;
+  }
+  .results-wrap .place{
+    font-family:var(--f-display); font-weight:400;
+    font-size: clamp(90px, 20vw, 220px); line-height:.75;
+    color:var(--gold); transform:skewX(-3deg);
+  }
+  .results-wrap .place.win{ color:var(--gold); }
+  .results-wrap .place.loss{ color:var(--paper); }
+  .results-wrap .subline{
+    font-family:var(--f-pixel); font-size:12px; letter-spacing:2px; color:rgba(244,242,237,.6); margin-top:22px;
+  }
+  .stat-row{
+    display:flex; justify-content:center; gap:48px; margin:38px 0 44px;
+  }
+  .stat{ text-align:center; }
+  .stat .n{ font-family:var(--f-display); font-size:38px; color:var(--paper); }
+  .stat .l{ font-family:var(--f-pixel); font-size:9px; letter-spacing:1.5px; color:rgba(244,242,237,.45); margin-top:4px; }
+  .career-line{
+    font-family:var(--f-pixel); font-size:10px; letter-spacing:1px; color:rgba(244,242,237,.4);
+    margin-bottom:26px; min-height:12px;
+  }
+  .career-line b{ color:var(--gold); }
+  .results-actions{ display:flex; justify-content:center; gap:18px; }
+  .btn-rematch{
+    font-family:var(--f-display); font-size:24px; color:var(--ink); background:var(--volt);
+    padding:14px 36px 12px; clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+    transition: transform .15s ease, background .15s ease;
+  }
+  .btn-rematch:hover{ background:var(--gold); transform:scale(1.03); }
+  .btn-title{
+    font-family:var(--f-pixel); font-size:11px; color:rgba(244,242,237,.55);
+    padding:14px 20px; border-bottom:1px solid rgba(244,242,237,.25);
+  }
+  .btn-title:hover{ color:var(--paper); }
+
+  /* ============ MATCHMAKING SCREEN ============ */
+  #screen-matchmaking{ background:var(--ink); }
+  .mm-wrap{ position:relative; z-index:1; width:min(720px,90vw); text-align:center; }
+  .mm-eyebrow{ font-family:var(--f-pixel); font-size:10px; letter-spacing:3px; color:rgba(244,242,237,.45); }
+  .mm-ring{
+    position:relative; width:180px; height:180px; margin:34px auto;
+  }
+  .mm-ring svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .mm-ring circle{
+    fill:none; stroke-width:4;
+  }
+  .mm-ring .track{ stroke: rgba(244,242,237,.12); }
+  .mm-ring .fill{
+    stroke: var(--volt); stroke-linecap:round;
+    stroke-dasharray: 503; stroke-dashoffset: 503;
+    animation: mm-spin 1.6s ease-in-out infinite;
+  }
+  @keyframes mm-spin{
+    0%{ stroke-dashoffset:503; }
+    50%{ stroke-dashoffset:120; }
+    100%{ stroke-dashoffset:503; }
+  }
+  .mm-count{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .mm-count .n{ font-family:var(--f-display); font-size:52px; color:var(--paper); line-height:.9; }
+  .mm-count .l{ font-family:var(--f-pixel); font-size:8px; letter-spacing:1.5px; color:rgba(244,242,237,.4); margin-top:6px; }
+  .mm-status{ font-family:var(--f-display); font-size:28px; color:var(--paper); margin-top:8px; }
+  .mm-sub{ font-size:13px; color:rgba(244,242,237,.5); margin-top:8px; }
+  .mm-cancel{
+    margin-top:30px; font-family:var(--f-pixel); font-size:10px; letter-spacing:1.5px;
+    color:rgba(244,242,237,.5); padding:10px 18px; border-bottom:1px solid rgba(244,242,237,.25);
+  }
+  .mm-cancel:hover{ color:var(--paper); border-color:var(--paper); }
+
+  /* ============ LOBBY SCREEN ============ */
+  #screen-lobby{ background:var(--ink); align-items:stretch; }
+  .lobby-wrap{
+    position:relative; z-index:1; width:100%; height:100%;
+    display:grid; grid-template-columns: 1.1fr .9fr; gap:0;
+  }
+  .lobby-left{
+    padding:48px 4vw; display:flex; flex-direction:column; justify-content:center;
+    border-right:1px solid rgba(255,255,255,.06);
+  }
+  .lobby-eyebrow{ font-family:var(--f-pixel); font-size:10px; letter-spacing:3px; color:var(--gold); }
+  .lobby-title{
+    font-family:var(--f-display); font-weight:400; font-size:clamp(48px,7vw,92px);
+    line-height:.85; color:var(--paper); margin:10px 0 6px; transform:skewX(-3deg);
+  }
+  .lobby-count{ font-family:var(--f-pixel); font-size:12px; letter-spacing:1px; color:rgba(244,242,237,.55); }
+  .lobby-count b{ color:var(--volt); }
+  .lobby-cta{ display:flex; align-items:center; gap:22px; margin-top:40px; }
+  .btn-ready{
+    font-family:var(--f-display); font-size:28px; color:var(--ink); background:var(--volt);
+    padding:16px 40px 14px; letter-spacing:1px;
+    clip-path: polygon(0 0, 100% 0, 94% 100%, 6% 100%);
+    transition: transform .15s ease, background .15s ease;
+  }
+  .btn-ready.is-ready{ background:var(--gold); }
+  .btn-ready:hover{ transform: translateX(-4px) scale(1.02); }
+  .lobby-timer{
+    font-family:var(--f-display); font-size:44px; color:var(--signal); min-width:70px; text-align:center;
+  }
+  .lobby-leave{
+    margin-top:26px; font-family:var(--f-pixel); font-size:10px; letter-spacing:1.5px;
+    color:rgba(244,242,237,.45); padding:6px 4px; border-bottom:1px solid rgba(244,242,237,.2); align-self:flex-start;
+  }
+  .lobby-leave:hover{ color:var(--paper); }
+  .lobby-right{
+    padding:48px 3vw; overflow-y:auto;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .lobby-right-hd{
+    font-family:var(--f-pixel); font-size:9px; letter-spacing:2px; color:rgba(244,242,237,.4);
+    margin-bottom:6px;
+  }
+  .roster-row{
+    display:flex; align-items:center; gap:12px;
+    padding:9px 12px; background:var(--ink-2);
+    border-left:3px solid transparent;
+    animation: roster-in .3s ease;
+  }
+  @keyframes roster-in{ from{ opacity:0; transform:translateX(8px);} to{ opacity:1; transform:translateX(0);} }
+  .roster-row.is-you{ border-left-color:var(--volt); background:var(--ink-3); }
+  .roster-row.is-ready{ border-left-color:var(--gold); }
+  .roster-avatar{
+    width:28px; height:28px; flex-shrink:0; background:var(--core-bg); color:var(--core-fg);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--f-display); font-size:13px;
+  }
+  .roster-name{ font-size:13px; color:var(--paper); flex:1; letter-spacing:.3px; }
+  .roster-tag{ font-family:var(--f-pixel); font-size:8px; letter-spacing:1px; color:rgba(244,242,237,.4); }
+  .roster-tag.live{ color:var(--volt); }
+  .roster-ready-dot{
+    width:8px; height:8px; border-radius:50%; background:rgba(244,242,237,.2); flex-shrink:0;
+  }
+  .roster-row.is-ready .roster-ready-dot{ background:var(--gold); box-shadow:0 0 8px var(--gold); }
+  .roster-fill-note{
+    font-family:var(--f-pixel); font-size:9px; letter-spacing:1px; color:rgba(244,242,237,.35);
+    text-align:center; padding:14px 0;
   }
 
-  @media (max-width: 768px) {
-    .page { padding: 20px 16px 40px; }
-    .title { font-size: 36px; letter-spacing: 2px; }
-    .logo-line { font-size: 10px; letter-spacing: 5px; }
-    .subtitle { font-size: 13px; letter-spacing: 2px; }
-    .ps2-note { font-size: 12px; padding: 7px 14px; gap: 8px; text-align: center; }
-    .howto { grid-template-columns: 1fr 1fr; padding: 16px; gap: 14px; }
-    .step-num { font-size: 18px; }
-    .step-text { font-size: 13px; }
-    .grid, .grid-wide, .grid-full { grid-template-columns: 1fr; gap: 16px; }
-    div[style*="flex-direction:column"] { gap: 16px !important; }
-    .section-title { font-size: 10px; letter-spacing: 2px; }
-    .section-count { font-size: 10px; }
-    .tag { font-size: 11px; padding: 3px 8px; }
-    .col3 { columns: 2; }
-    .col2 { columns: 2; }
-    .word { font-size: 10px; padding: 2px 6px; }
-    .footer { font-size: 10px; letter-spacing: 1px; padding-top: 20px; }
-    #beta-toggle { font-size: 9px; padding: 6px 10px 6px 8px; }
+  @media (max-width: 900px){
+    .lobby-wrap{ grid-template-columns:1fr; }
+    .lobby-left{ border-right:none; border-bottom:1px solid rgba(255,255,255,.06); }
   }
 
-  @media (max-width: 480px) {
-    .page { padding: 14px 12px 32px; }
-    .title { font-size: 28px; }
-    .subtitle { font-size: 11px; letter-spacing: 1px; }
-    .ps2-note { flex-direction: column; gap: 6px; font-size: 11px; text-align: center; }
-    .circle-btn:last-child { display: none; }
-    .howto { grid-template-columns: 1fr; padding: 14px; gap: 12px; }
-    .col3, .col2 { columns: 1; }
-    .section-body { padding: 12px 14px 14px; }
-    .section-head { padding: 10px 14px; }
-    .tag { white-space: normal; word-break: break-word; }
-    .word { font-size: 10px; }
-    .footer { letter-spacing: 0px; line-height: 1.8; }
+  @media (max-width: 1100px){
+    .rail{ display:none; }
+  }
+  @media (max-width: 820px){
+    .hud-top{ height:auto; flex-direction:column; clip-path:none; }
+    .hud-seg{ border-left:none; border-top:1px solid rgba(255,255,255,.07); padding:12px 18px; }
+    .hud-seg:first-child{ border-top:none; padding-left:18px; }
+    .hud-seg-feed{ display:none; }
+    .title-wrap{ grid-template-columns:1fr; text-align:left; }
+    .title-actions{ align-items:flex-start; margin-top:24px; }
   }
 </style>
 </head>
 <body>
+<div id="app">
 
-<!-- Beta Toggle -->
-<button id="beta-toggle" title="Toggle beta features">
-  <div class="beta-dot"></div>
-  <span class="beta-label">BETA</span>
-</button>
-<div id="beta-toast">✦ Beta v3 enabled</div>
-
-<!-- Changelog button + panel -->
-<button id="changelog-btn" title="View changelog">📋 <span>LOG</span></button>
-<div id="changelog-tab">
-  <div class="cl-head">
-    <span class="cl-title">CHANGELOG</span>
-    <button class="cl-close" id="changelog-close">✕</button>
-  </div>
-  <div class="cl-body">
-    <div class="cl-version">
-      <div class="cl-ver-label">
-        <span class="cl-ver-badge">v4.0 — BETA</span>
-        <span class="cl-ver-date">Current build</span>
+  <!-- ============ TITLE ============ -->
+  <section class="screen active" id="screen-title">
+    <div class="bg-streaks" id="title-streaks"></div>
+    <div class="title-wrap">
+      <div class="title-mark">
+        <span class="eyebrow">A GRID. NINETY-NINE OF YOU.</span>
+        <h1>SNAKE<br><span class="ninety-nine">99</span></h1>
+        <p class="title-sub">Same Snake you remember. Ninety-eight strangers trying to outlast you. Last one moving wins.</p>
       </div>
-      <ul class="cl-items">
-        <li class="new-feat">Removed <span>Stats number bar</span> — MOVEMENT / BATTLE / SPECIAL count bar removed from beta tab</li>
-        <li class="new-feat">Moved <span>How-to steps (1–4)</span> — now appears where the stats bar was when beta is active</li>
-        <li class="new-feat">Moved <span>LOG button</span> — repositioned below BETA button to prevent overlap</li>
-        <li class="new-feat">Removed <span>Bottom-left buttons</span> — COMPACT, RANDOM and EXPORT buttons removed</li>
-        <li class="new-feat">Fixed <span>Text scaling</span> — font size slider now correctly scales all command tags and vocabulary words</li>
-      </ul>
-    </div>
-    <div class="cl-version">
-      <div class="cl-ver-label">
-        <span class="cl-ver-badge prev">v3.0 — BETA</span>
-        <span class="cl-ver-date">Previous build</span>
-      </div>
-      <ul class="cl-items">
-        <li class="new-feat">Added <span>Changelog panel</span> — this panel, tracks all updates</li>
-        <li class="new-feat">Added <span>Font size slider</span> — scale all command text (bottom-right)</li>
-        <li class="new-feat">Added <span>Phrase Builder</span> — click words to chain a custom command</li>
-        <li class="new-feat">Added <span>Stats panel</span> — live command counts by category</li>
-        <li class="new-feat">Added <span>Section jump nav</span> — one-click scroll to any section</li>
-        <li class="new-feat">Added <span>Compact density mode</span> — tighter layout for dense screens</li>
-        <li class="new-feat">Added <span>Random command</span> — highlights a surprise command</li>
-        <li class="new-feat">Added <span>Export command list</span> — copy all commands as plain text</li>
-        <li class="new-feat">Added <span>Bookmark tags</span> — double-click any tag to pin it</li>
-        <li class="new-feat">Added <span>Keyboard shortcuts</span> — press / to search, Esc to clear</li>
-        <li class="new-feat">Added <span>Section progress bars</span> — density indicator per section</li>
-        <li class="new-feat">Added <span>Word click → phrase builder</span> — single click appends word</li>
-      </ul>
-    </div>
-    <div class="cl-version">
-      <div class="cl-ver-label">
-        <span class="cl-ver-badge prev">v2.0 — BETA</span>
-        <span class="cl-ver-date">Previous build</span>
-      </div>
-      <ul class="cl-items">
-        <li>Added <span>Search bar</span> — live filter across all commands, words and phrases</li>
-        <li>Added <span>Copy buttons</span> — hover ⧉ copies tag text to clipboard</li>
-        <li>Added <span>Collapsible sections</span> — click header to collapse/expand</li>
-        <li>Added <span>Alpha-grouped word grid</span> — 314 words sorted A–Z with letter dividers</li>
-        <li>Added <span>Sticky section headers</span> — headers lock to top on scroll</li>
-        <li>Added <span>Beta toggle button</span> — activates all beta features</li>
-        <li>Added <span>Toast notifications</span> — confirms beta on/off state</li>
-        <li>Added <span>Focus-to-zoom on tags</span> — focused tag enlarges for easier reading</li>
-        <li>Added <span>Search result counter</span> — shows "N found" or "none"</li>
-      </ul>
-    </div>
-    <div class="cl-version">
-      <div class="cl-ver-label">
-        <span class="cl-ver-badge prev">v1.0</span>
-        <span class="cl-ver-date">Original release</span>
-      </div>
-      <ul class="cl-items">
-        <li>Initial command reference page</li>
-        <li>Movement, Battle, Special, Scenario, Fun Phrases sections</li>
-        <li>Chat Button Commands section</li>
-        <li>314-word vocabulary reference grid</li>
-        <li>How-to-use steps panel</li>
-        <li>Responsive layout — mobile, tablet, desktop</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- Export modal -->
-<div id="export-modal">
-  <div class="em-box">
-    <div class="em-title">EXPORT COMMANDS</div>
-    <textarea id="export-ta" readonly></textarea>
-    <div class="em-actions">
-      <button class="em-btn em-btn-primary" id="export-copy-btn">COPY ALL</button>
-      <button class="em-btn em-btn-close" id="export-close-btn">CLOSE</button>
-    </div>
-  </div>
-</div>
-
-<!-- Keyboard shortcut tip -->
-<div class="kb-tip" id="kb-tip">Press <kbd>/</kbd> to search &nbsp;·&nbsp; <kbd>Esc</kbd> to clear &nbsp;·&nbsp; <kbd>double-click</kbd> tag to bookmark</div>
-
-
-
-<!-- Font size control -->
-<div id="font-ctrl">
-  <label for="font-size-slider">TEXT</label>
-  <input type="range" id="font-size-slider" min="80" max="140" value="100" step="5">
-  <span id="font-size-val">100%</span>
-</div>
-
-<div class="page">
-
-  <!-- Header -->
-  <div class="header">
-    <div class="logo-line">Twitch plays</div>
-    <div class="title">LIFE<span>LINE</span></div>
-    <div class="subtitle">Voice Command Reference — Operator's Side</div>
-    <div style="display:flex;justify-content:center;margin-top:14px;">
-      <div class="ps2-note">
-        <div class="circle-btn">○</div>
-        Type any command in chat &nbsp;·&nbsp; The bot holds Circle and speaks it to Player
-        <div class="circle-btn">○</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- BETA v3: How-to steps (moved to top area, replacing stats panel) -->
-  <div id="howto-beta-wrap"></div>
-
-  <!-- BETA v3: Section jump nav -->
-  <div id="jump-nav">
-    <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#263238;letter-spacing:1px;align-self:center;">JUMP:</span>
-    <a class="jump-btn" href="#sec-movement">MOVEMENT</a>
-    <a class="jump-btn" href="#sec-special">SPECIAL</a>
-    <a class="jump-btn" href="#sec-battle">BATTLE</a>
-    <a class="jump-btn" href="#sec-scenario">SCENARIO</a>
-    <a class="jump-btn" href="#sec-fun">FUN</a>
-    <a class="jump-btn" href="#sec-chat">CHAT BTNS</a>
-    <a class="jump-btn" href="#sec-words">ALL WORDS</a>
-  </div>
-
-  <!-- BETA v3: Phrase Builder -->
-  <div id="phrase-builder">
-    <span class="pb-label">BUILD:</span>
-    <div id="phrase-output" contenteditable="true" spellcheck="false"></div>
-    <div class="pb-actions">
-      <button class="pb-btn pb-copy" id="pb-copy-btn">COPY</button>
-      <button class="pb-btn pb-clear" id="pb-clear-btn">CLEAR</button>
-    </div>
-  </div>
-
-  <!-- BETA v3: Bookmarks panel -->
-  <div id="bookmarks-panel">
-    <div class="bm-title">★ BOOKMARKED</div>
-    <div class="bm-list"></div>
-  </div>
-
-  <!-- BETA: Search bar (hidden until beta on) -->
-  <div id="search-bar-wrap">
-    <span class="search-icon">⌕</span>
-    <input type="text" id="search-input" placeholder="Search commands, words, phrases…" autocomplete="off" spellcheck="false">
-    <span id="search-count"></span>
-  </div>
-
-  <!-- How to use -->
-  <div class="howto" id="howto-block">
-    <div class="step"><div class="step-num">01</div><div class="step-text"><strong>Type a command</strong>Type any word or full phrase from this list into chat</div></div>
-    <div class="step"><div class="step-num">02</div><div class="step-text"><strong>Bot detects it</strong>The bot recognises single words AND full scenario phrases</div></div>
-    <div class="step"><div class="step-num">03</div><div class="step-text"><strong>Circle held</strong>Automatically holds ○ for 0.5s then plays the audio</div></div>
-    <div class="step"><div class="step-num">04</div><div class="step-text"><strong>Player responds</strong>They hear the command and act — combine words for sentences</div></div>
-  </div>
-
-  <!-- Row 1: Movement + Battle + Special -->
-  <div class="grid" style="margin-bottom:20px;">
-
-    <div class="section c-blue collapsible sticky-head" id="sec-movement">
-      <div class="section-head">
-        <div class="section-icon">MV</div>
-        <div class="section-title">Movement &amp; Actions</div>
-        <div class="section-count">SINGLE WORDS</div>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="section-body">
-        <div class="word-grid">
-          <span class="word">walk</span><span class="word">run</span><span class="word">stop</span><span class="word">go</span><span class="word">move</span><span class="word">follow</span><span class="word">come</span><span class="word">here</span><span class="word">back</span><span class="word">left</span><span class="word">right</span><span class="word">forward</span><span class="word">ahead</span><span class="word">behind</span><span class="word">north</span><span class="word">south</span><span class="word">east</span><span class="word">west</span><span class="word">up</span><span class="word">down</span><span class="word">wait</span><span class="word">stay</span><span class="word">return</span><span class="word">approach</span><span class="word">enter</span><span class="word">exit</span><span class="word">climb</span><span class="word">jump</span><span class="word">duck</span><span class="word">turn</span><span class="word">front</span><span class="word">flee</span><span class="word">dodge</span>
-        </div>
-        <div style="margin-top:12px;border-top:1px solid #1e2a3a;padding-top:10px;">
-          <div class="word-grid">
-            <span class="word">get</span><span class="word">take</span><span class="word">grab</span><span class="word">pick</span><span class="word">drop</span><span class="word">use</span><span class="word">open</span><span class="word">close</span><span class="word">push</span><span class="word">pull</span><span class="word">hit</span><span class="word">attack</span><span class="word">fight</span><span class="word">kick</span><span class="word">hide</span><span class="word">crouch</span><span class="word">stand</span><span class="word">look</span><span class="word">examine</span><span class="word">search</span><span class="word">check</span><span class="word">read</span><span class="word">give</span><span class="word">throw</span><span class="word">put</span><span class="word">place</span><span class="word">carry</span><span class="word">hold</span><span class="word">release</span><span class="word">eat</span><span class="word">drink</span><span class="word">heal</span><span class="word">rest</span><span class="word">shoot</span><span class="word">fire</span><span class="word">reload</span><span class="word">aim</span><span class="word">recover</span><span class="word">unlock</span><span class="word">break</span><span class="word">press</span>
+      <div class="title-actions">
+        <div class="identity-box">
+          <input class="identity-input" id="username-input" maxlength="16" placeholder="YOUR NAME">
+          <div class="identity-code-row">
+            <span class="identity-code-label">RECOVERY CODE</span>
+            <button class="identity-reveal" id="btn-reveal-code">REVEAL</button>
+          </div>
+          <div class="identity-code" id="identity-code">••••-••••</div>
+          <div class="identity-stats" id="identity-stats"></div>
+          <button class="identity-restore-toggle" id="btn-show-restore">Have a code from another device?</button>
+          <div class="identity-restore-panel" id="identity-restore-panel" hidden>
+            <div class="identity-restore-row">
+              <input class="identity-input" id="restore-code-input" maxlength="9" placeholder="CODE">
+              <button class="identity-restore-btn" id="btn-restore">RESTORE</button>
+            </div>
+            <div class="identity-restore-msg" id="identity-restore-msg"></div>
           </div>
         </div>
+        <button class="btn-play" id="btn-play">PLAY</button>
+        <button class="btn-ghost" id="btn-howto">How this works</button>
       </div>
     </div>
+    <div class="settings-corner">
+      <label class="toggle-row"><input type="checkbox" id="opt-reduced-motion"> Reduce motion</label>
+      <label class="toggle-row"><input type="checkbox" id="opt-shake" checked> Screen shake</label>
+      <label class="toggle-row"><input type="checkbox" id="opt-sound" checked> Sound</label>
+    </div>
+  </section>
 
-    <div class="section c-green collapsible" id="sec-special">
-      <div class="section-head">
-        <div class="section-icon">SP</div>
-        <div class="section-title">Special Commands</div>
-        <div class="section-count">FULL PHRASES</div>
-        <span class="collapse-arrow">▼</span>
+  <!-- ============ MATCHMAKING ============ -->
+  <section class="screen" id="screen-matchmaking">
+    <div class="bg-streaks" id="mm-streaks"></div>
+    <div class="mm-wrap">
+      <span class="mm-eyebrow">CONNECTING</span>
+      <div class="mm-ring">
+        <svg viewBox="0 0 180 180"><circle class="track" cx="90" cy="90" r="80"></circle><circle class="fill" cx="90" cy="90" r="80"></circle></svg>
+        <div class="mm-count"><div class="n" id="mm-found">1</div><div class="l">SNAKES FOUND</div></div>
       </div>
-      <div class="section-body">
-        <div class="tags">
-          <span class="tag tag-green">microphone check<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">zoom in<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">low kick<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">category game<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">spin the gun<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">sexy pose<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">auto-fire<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">she sells<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">break time<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">i'll leave it to you<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">camera check<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">jumpback<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">strafe<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">taunt<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">go back<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-green">consultation<button class="copy-btn" title="Copy">⧉</button></span>
+      <div class="mm-status">FINDING A MATCH</div>
+      <div class="mm-sub" id="mm-sub">Searching nearby servers for open lobbies…</div>
+      <button class="mm-cancel" id="btn-mm-cancel">CANCEL</button>
+    </div>
+  </section>
+
+  <!-- ============ LOBBY ============ -->
+  <section class="screen" id="screen-lobby">
+    <div class="lobby-wrap">
+      <div class="lobby-left">
+        <span class="lobby-eyebrow">LOBBY OPEN</span>
+        <h2 class="lobby-title">GET<br>READY</h2>
+        <div class="lobby-count"><b id="lobby-ready-count">1</b> / <span id="lobby-total-count">99</span> CONFIRMED</div>
+        <div class="lobby-cta">
+          <button class="btn-ready" id="btn-ready">READY UP</button>
+          <div class="lobby-timer" id="lobby-timer">—</div>
         </div>
+        <button class="lobby-leave" id="btn-lobby-leave">LEAVE LOBBY</button>
+      </div>
+      <div class="lobby-right">
+        <div class="lobby-right-hd">CONNECTED PLAYERS</div>
+        <div id="roster-list"></div>
       </div>
     </div>
+  </section>
 
-    <div class="section c-amber collapsible" id="sec-battle">
-      <div class="section-head">
-        <div class="section-icon">BT</div>
-        <div class="section-title">Battle Commands</div>
-        <div class="section-count">SINGLE WORDS + PHRASES</div>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="section-body">
-        <div class="tags" style="margin-bottom:10px;">
-          <span class="tag tag-amber">shoot<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-amber">reload<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-amber">flee<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-amber">approach<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-amber">recover<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-amber">dodge<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-amber">front<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-amber">back<button class="copy-btn" title="Copy">⧉</button></span>
-        </div>
-        <div style="border-top:1px solid #1e2a3a;padding-top:10px;">
-          <div class="tags">
-            <span class="tag tag-amber">number 1<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-amber">number 2<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-amber">number 3<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-amber">turn right<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-amber">turn left<button class="copy-btn" title="Copy">⧉</button></span>
+  <!-- ============ GAME ============ -->
+  <section class="screen" id="screen-game">
+    <div class="bg-streaks" id="game-streaks"></div>
+    <div class="danger-vignette" id="danger-vignette"></div>
+    <div class="flash-banner" id="flash-banner"></div>
+    <div class="game-arena">
+      <div class="hud-top">
+        <div class="hud-seg hud-seg-rank">
+          <div class="hud-rank">
+            <div class="num" id="hud-rank">99</div>
+            <div class="meta">
+              <span class="lbl">CURRENT PLACE</span>
+              <span class="hud-remaining" id="hud-remaining">99 SNAKES ALIVE</span>
+              <span class="hud-mode" id="hud-mode"></span>
+            </div>
           </div>
         </div>
-        <div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px;">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#546e7a;letter-spacing:1px;margin-bottom:6px;">STACK UP TO 3 COMMANDS:</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#ffe082;background:rgba(255,193,7,0.06);padding:6px 10px;border-radius:4px;border:1px solid rgba(255,193,7,0.1);">
-            shoot shoot shoot &nbsp;·&nbsp; shoot flee recover
+        <div class="hud-seg">
+          <div class="hud-block">
+            <span class="lbl">TARGET (T TO CYCLE)</span>
+            <div class="val" id="hud-target">—</div>
           </div>
         </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Row 2: Scenario questions (wide) + Fun -->
-  <div class="grid grid-wide" style="margin-bottom:20px;">
-
-    <div class="section c-teal collapsible sticky-head" id="sec-scenario">
-      <div class="section-head">
-        <div class="section-icon">SC</div>
-        <div class="section-title">Scenario Questions — say the full phrase</div>
-        <div class="section-count">62 PHRASES</div>
-        <span class="collapse-arrow">▼</span>
-      </div>
-      <div class="section-body">
-        <div class="col3 tags">
-          <span class="tag tag-teal">what should we do<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">where am i<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">who's player<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what is jsl<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what are you looking for<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what was that monster<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">who is helen johnson<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">why are you so cranky<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">i wonder if player's alive<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what is the manager like<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what do you think of the pm<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">do you have any friends<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what's the relationship with gino<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">is a rescue team coming<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">how are things on earth<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">player isn't around<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what are they researching here<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what do you think of allen<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">where is the announcer<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">tell me about yourself<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">tell me what you're looking for<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">powers and alien<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what do you think of powers<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">how far away are you<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">player wasn't there<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">about this hotel's structure<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">humanoid alien<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">i wonder if the pm and his people are ok<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what do you think of that captain<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">that alien earlier<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">you've got great reflexes<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">i wonder if player is safe<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">you're looking for a green orb<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">i wonder if the manager is ok<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">where is gino<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">the announcer was dead<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">that man in the restaurant<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">when we get to earth<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">how was earth<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">is this hotel ok<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">why did tanaka turn into a monster<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">the poor manager<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what happened to powers<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">i wonder if gino is ok<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what is paracelsus<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">the remnants of paracelsus<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">the power of words<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">are you close to me now<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">is it zero gravity<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what's a philosopher's stone<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">the first lady was attacked by an alien<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">that allen<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what happened to gino<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what was that group<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">where is player<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">the monsters were made here<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">allen was conducting research here<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">you're strong<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">it's about player<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">what's a fake stone<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">powers is joseph<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">remnants of jsl<button class="copy-btn" title="Copy">⧉</button></span>
-          <span class="tag tag-teal">why were you in the detaining cell<button class="copy-btn" title="Copy">⧉</button></span>
-        </div>
-      </div>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:20px;">
-
-      <div class="section c-purple collapsible" id="sec-fun">
-        <div class="section-head">
-          <div class="section-icon">FN</div>
-          <div class="section-title">Fun Phrases</div>
-          <div class="section-count">EASTER EGGS</div>
-          <span class="collapse-arrow">▼</span>
-        </div>
-        <div class="section-body">
-          <div class="tags col2">
-            <span class="tag tag-purple">i love you<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">i hate you<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">i'm sorry<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">are you a girl<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">bark like a dog<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">what's your sign<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">sit down<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">this game sucks<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">kill yourself<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">suicide<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">fuck you<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">take off your clothes<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-purple">will you have sex with me<button class="copy-btn" title="Copy">⧉</button></span>
+        <div class="hud-seg">
+          <div class="hud-block">
+            <span class="lbl">ATTACK — SPACE TO LAUNCH</span>
+            <div class="meter-track"><div class="meter-fill" id="meter-fill"></div></div>
           </div>
         </div>
-      </div>
-
-      <div class="section c-coral collapsible" id="sec-chat">
-        <div class="section-head">
-          <div class="section-icon">CH</div>
-          <div class="section-title">Chat Button Commands</div>
-          <div class="section-count">NO CIRCLE HOLD</div>
-          <span class="collapse-arrow">▼</span>
-        </div>
-        <div class="section-body">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#546e7a;letter-spacing:1px;margin-bottom:8px;">CONFIGURE TRIGGER WORDS IN THE APP SETTINGS</div>
-          <div class="tags">
-            <span class="tag tag-coral">confirm → Square □<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-coral">cancel → Cross ×<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-coral">analysis → Triangle △<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-coral">map → L1<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-coral">items → R1<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-coral">skip → L2<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-coral">pause → Start<button class="copy-btn" title="Copy">⧉</button></span>
-            <span class="tag tag-coral">select → Select<button class="copy-btn" title="Copy">⧉</button></span>
-          </div>
-          <div style="margin-top:10px;font-size:12px;color:#546e7a;">Trigger words are customisable in the Settings tab</div>
+        <div class="hud-seg hud-seg-feed">
+          <div class="feed" id="feed"></div>
         </div>
       </div>
-
-    </div>
-  </div>
-
-  <!-- Row 3: Word reference -->
-  <div class="section collapsible sticky-head" id="sec-words" style="border-color:#1e2a3a;margin-bottom:24px;">
-    <div class="section-head" style="background:rgba(255,255,255,0.02);">
-      <div class="section-icon" style="background:rgba(255,255,255,0.05);color:#546e7a;font-size:11px;">WD</div>
-      <div class="section-title" style="color:#546e7a;">All recognised single words — any of these alone or combined will trigger a voice command</div>
-      <div class="section-count">314 WORDS</div>
-      <span class="collapse-arrow">▼</span>
-    </div>
-    <div class="section-body">
-      <!-- Plain word grid (shown by default) -->
-      <div class="word-grid word-grid-plain">
-        <span class="word">a</span><span class="word">about</span><span class="word">ahead</span><span class="word">aid</span><span class="word">aim</span><span class="word">alien</span><span class="word">alive</span><span class="word">allen</span><span class="word">am</span><span class="word">ammo</span><span class="word">an</span><span class="word">and</span><span class="word">announcer</span><span class="word">answer</span><span class="word">any</span><span class="word">approach</span><span class="word">are</span><span class="word">around</span><span class="word">attack</span><span class="word">attacked</span><span class="word">auto</span><span class="word">away</span><span class="word">back</span><span class="word">backpack</span><span class="word">bag</span><span class="word">bandage</span><span class="word">bark</span><span class="word">bat</span><span class="word">behind</span><span class="word">bottle</span><span class="word">box</span><span class="word">break</span><span class="word">button</span><span class="word">by</span><span class="word">cabinet</span><span class="word">call</span><span class="word">camera</span><span class="word">can</span><span class="word">cancel</span><span class="word">captain</span><span class="word">careful</span><span class="word">carry</span><span class="word">category</span><span class="word">cell</span><span class="word">check</span><span class="word">chest</span><span class="word">climb</span><span class="word">close</span><span class="word">clothes</span><span class="word">come</span><span class="word">coming</span><span class="word">computer</span><span class="word">conducting</span><span class="word">corner</span><span class="word">cranky</span><span class="word">crouch</span><span class="word">dead</span><span class="word">detaining</span><span class="word">destroy</span><span class="word">did</span><span class="word">do</span><span class="word">dodge</span><span class="word">dog</span><span class="word">door</span><span class="word">drawer</span><span class="word">drink</span><span class="word">drop</span><span class="word">duck</span><span class="word">earlier</span><span class="word">earth</span><span class="word">east</span><span class="word">eat</span><span class="word">end</span><span class="word">enter</span><span class="word">examine</span><span class="word">exit</span><span class="word">fake</span><span class="word">far</span><span class="word">fight</span><span class="word">fire</span><span class="word">first</span><span class="word">flee</span><span class="word">flip</span><span class="word">floor</span><span class="word">follow</span><span class="word">food</span><span class="word">for</span><span class="word">forward</span><span class="word">friends</span><span class="word">from</span><span class="word">front</span><span class="word">fuck</span><span class="word">game</span><span class="word">get</span><span class="word">gino</span><span class="word">girl</span><span class="word">give</span><span class="word">go</span><span class="word">got</span><span class="word">grab</span><span class="word">gravity</span><span class="word">great</span><span class="word">green</span><span class="word">group</span><span class="word">gun</span><span class="word">hall</span><span class="word">hallway</span><span class="word">happened</span><span class="word">hate</span><span class="word">have</span><span class="word">heal</span><span class="word">health</span><span class="word">helen</span><span class="word">help</span><span class="word">here</span><span class="word">hide</span><span class="word">his</span><span class="word">hit</span><span class="word">hold</span><span class="word">hotel</span><span class="word">how</span><span class="word">humanoid</span><span class="word">hurry</span><span class="word">i</span><span class="word">if</span><span class="word">in</span><span class="word">into</span><span class="word">inventory</span><span class="word">is</span><span class="word">it</span><span class="word">item</span><span class="word">johnson</span><span class="word">joseph</span><span class="word">jsl</span><span class="word">jump</span><span class="word">key</span><span class="word">kick</span><span class="word">kill</span><span class="word">knife</span><span class="word">ladder</span><span class="word">lady</span><span class="word">leave</span><span class="word">left</span><span class="word">light</span><span class="word">like</span><span class="word">lock</span><span class="word">look</span><span class="word">looking</span><span class="word">love</span><span class="word">low</span><span class="word">machine</span><span class="word">made</span><span class="word">man</span><span class="word">manager</span><span class="word">map</span><span class="word">me</span><span class="word">medicine</span><span class="word">microphone</span><span class="word">monster</span><span class="word">monsters</span><span class="word">move</span><span class="word">player</span><span class="word">next</span><span class="word">no</span><span class="word">north</span><span class="word">now</span><span class="word">number</span><span class="word">of</span><span class="word">off</span><span class="word">ok</span><span class="word">okay</span><span class="word">on</span><span class="word">onto</span><span class="word">open</span><span class="word">orb</span><span class="word">over</span><span class="word">panel</span><span class="word">paracelsus</span><span class="word">people</span><span class="word">phone</span><span class="word">pick</span><span class="word">place</span><span class="word">please</span><span class="word">pm</span><span class="word">poor</span><span class="word">pose</span><span class="word">power</span><span class="word">powers</span><span class="word">press</span><span class="word">pull</span><span class="word">push</span><span class="word">put</span><span class="word">radio</span><span class="word">read</span><span class="word">recover</span><span class="word">reflexes</span><span class="word">relationship</span><span class="word">release</span><span class="word">reload</span><span class="word">remnants</span><span class="word">repeat</span><span class="word">rescue</span><span class="word">research</span><span class="word">researching</span><span class="word">rest</span><span class="word">restaurant</span><span class="word">return</span><span class="word">right</span><span class="word">room</span><span class="word">run</span><span class="word">safe</span><span class="word">save</span><span class="word">say</span><span class="word">search</span><span class="word">sells</span><span class="word">sex</span><span class="word">sexy</span><span class="word">she</span><span class="word">shelf</span><span class="word">shoot</span><span class="word">should</span><span class="word">side</span><span class="word">sign</span><span class="word">sit</span><span class="word">skip</span><span class="word">sleep</span><span class="word">so</span><span class="word">sorry</span><span class="word">south</span><span class="word">speak</span><span class="word">spin</span><span class="word">stairs</span><span class="word">stand</span><span class="word">status</span><span class="word">stay</span><span class="word">stick</span><span class="word">stop</span><span class="word">stone</span><span class="word">strong</span><span class="word">structure</span><span class="word">sucks</span><span class="word">switch</span><span class="word">table</span><span class="word">take</span><span class="word">talk</span><span class="word">tanaka</span><span class="word">team</span><span class="word">tell</span><span class="word">thanks</span><span class="word">that</span><span class="word">the</span><span class="word">then</span><span class="word">there</span><span class="word">they</span><span class="word">things</span><span class="word">think</span><span class="word">this</span><span class="word">through</span><span class="word">throw</span><span class="word">time</span><span class="word">to</span><span class="word">toward</span><span class="word">towards</span><span class="word">turn</span><span class="word">under</span><span class="word">unlock</span><span class="word">up</span><span class="word">use</span><span class="word">wait</span><span class="word">wake</span><span class="word">walk</span><span class="word">wall</span><span class="word">was</span><span class="word">water</span><span class="word">weapon</span><span class="word">we</span><span class="word">were</span><span class="word">west</span><span class="word">what</span><span class="word">when</span><span class="word">where</span><span class="word">who</span><span class="word">why</span><span class="word">will</span><span class="word">window</span><span class="word">with</span><span class="word">without</span><span class="word">wonder</span><span class="word">words</span><span class="word">yes</span><span class="word">you</span><span class="word">your</span><span class="word">yourself</span><span class="word">zero</span><span class="word">zoom</span>
+      <div class="arena-row" id="game-wrap">
+        <div class="rail" id="rail-left"></div>
+        <div class="board-frame">
+          <canvas id="board" width="220" height="220"></canvas>
+          <div class="board-caption" id="board-caption">NOKIA CORE — GRID 22×22</div>
+        </div>
+        <div class="rail" id="rail-right"></div>
       </div>
-      <!-- Beta: Alpha-grouped word grid (hidden until beta on) -->
-      <div class="word-grid-alpha" id="alpha-grid"></div>
     </div>
-  </div>
+    <div class="controls-hint">ARROWS / WASD MOVE · T TARGET · SPACE ATTACK</div>
+  </section>
 
-  <!-- Footer -->
-  <div class="footer">
-    LIFELINE: OPERATOR'S SIDE &nbsp;·&nbsp; KONAMI 2003 &nbsp;·&nbsp; TWITCH VOICE CONTROLLER &nbsp;·&nbsp; CIRCLE ○ HELD AUTOMATICALLY FOR ALL COMMANDS
-  </div>
+  <!-- ============ RESULTS ============ -->
+  <section class="screen" id="screen-results">
+    <div class="bg-streaks" id="results-streaks"></div>
+    <div class="results-wrap">
+      <div class="place" id="res-place">7TH</div>
+      <div class="subline" id="res-subline">OUT OF 99</div>
+      <div class="stat-row">
+        <div class="stat"><div class="n" id="res-survived">0</div><div class="l">SURVIVED</div></div>
+        <div class="stat"><div class="n" id="res-elims">0</div><div class="l">ELIMINATIONS</div></div>
+        <div class="stat"><div class="n" id="res-score">0</div><div class="l">SCORE</div></div>
+      </div>
+      <div class="career-line" id="res-career"></div>
+      <div class="results-actions">
+        <button class="btn-rematch" id="btn-rematch">REMATCH</button>
+        <button class="btn-title" id="btn-to-title">RETURN TO TITLE</button>
+      </div>
+    </div>
+  </section>
 
 </div>
 
 <script>
-  // ── All words for alpha grid ──
-  const ALL_WORDS = ["a","about","ahead","aid","aim","alien","alive","allen","am","ammo","an","and","announcer","answer","any","approach","are","around","attack","attacked","auto","away","back","backpack","bag","bandage","bark","bat","behind","bottle","box","break","button","by","cabinet","call","camera","can","cancel","captain","careful","carry","category","cell","check","chest","climb","close","clothes","come","coming","computer","conducting","corner","cranky","crouch","dead","detaining","destroy","did","do","dodge","dog","door","drawer","drink","drop","duck","earlier","earth","east","eat","end","enter","examine","exit","fake","far","fight","fire","first","flee","flip","floor","follow","food","for","forward","friends","from","front","fuck","game","get","gino","girl","give","go","got","grab","gravity","great","green","group","gun","hall","hallway","happened","hate","have","heal","health","helen","help","here","hide","his","hit","hold","hotel","how","humanoid","hurry","i","if","in","into","inventory","is","it","item","johnson","joseph","jsl","jump","key","kick","kill","knife","ladder","lady","leave","left","light","like","lock","look","looking","love","low","machine","made","man","manager","map","me","medicine","microphone","monster","monsters","move","player","next","no","north","now","number","of","off","ok","okay","on","onto","open","orb","over","panel","paracelsus","people","phone","pick","place","please","pm","poor","pose","power","powers","press","pull","push","put","radio","read","recover","reflexes","relationship","release","reload","remnants","repeat","rescue","research","researching","rest","restaurant","return","right","room","run","safe","save","say","search","sells","sex","sexy","she","shelf","shoot","should","side","sign","sit","skip","sleep","so","sorry","south","speak","spin","stairs","stand","status","stay","stick","stop","stone","strong","structure","sucks","switch","table","take","talk","tanaka","team","tell","thanks","that","the","then","there","they","things","think","this","through","throw","time","to","toward","towards","turn","under","unlock","up","use","wait","wake","walk","wall","was","water","weapon","we","were","west","what","when","where","who","why","will","window","with","without","wonder","words","yes","you","your","yourself","zero","zoom"];
+(function(){
+  "use strict";
 
-  // Build alpha grid
-  function buildAlphaGrid() {
-    const container = document.getElementById('alpha-grid');
-    if (container.children.length > 0) return;
-    const groups = {};
-    ALL_WORDS.forEach(w => {
-      const letter = w[0].toUpperCase();
-      if (!groups[letter]) groups[letter] = [];
-      groups[letter].push(w);
-    });
-    Object.keys(groups).sort().forEach(letter => {
-      const group = document.createElement('div');
-      group.className = 'alpha-group';
-      const label = document.createElement('div');
-      label.className = 'alpha-label';
-      label.textContent = '— ' + letter + ' —';
-      const grid = document.createElement('div');
-      grid.className = 'word-grid';
-      groups[letter].forEach(w => {
-        const span = document.createElement('span');
-        span.className = 'word';
-        span.textContent = w;
-        span.setAttribute('tabindex', '0');
-        grid.appendChild(span);
-      });
-      group.appendChild(label);
-      group.appendChild(grid);
-      container.appendChild(group);
-    });
-    // attach phrase-builder click to new alpha words
-    attachWordEvents(container.querySelectorAll('.word'));
-    attachPhraseClick(container.querySelectorAll('.word'));
-  }
-
-  // ── Beta toggle ──
-  const betaBtn = document.getElementById('beta-toggle');
-  const betaToast = document.getElementById('beta-toast');
-  let toastTimer;
-
-  betaBtn.addEventListener('click', () => {
-    const isOn = document.body.classList.toggle('beta-on');
-    betaBtn.classList.toggle('active', isOn);
-
-    // Move howto block above/below the nav depending on beta state
-    const howto = document.getElementById('howto-block');
-    const betaWrap = document.getElementById('howto-beta-wrap');
-    const originalParent = document.querySelector('.page');
-    const jumpNav = document.getElementById('jump-nav');
-
-    if (isOn) {
-      // Insert howto into the beta wrap (which sits where stats panel was)
-      betaWrap.appendChild(howto);
-      buildAlphaGrid();
-      attachWordEvents(document.querySelectorAll('#alpha-grid .word'));
-      buildProgressBars();
-      showKbTip();
-    } else {
-      // Return howto to its original position before the main grids
-      const firstGrid = document.querySelector('.grid');
-      originalParent.insertBefore(howto, firstGrid);
+  // ---------- utility: background streaks ----------
+  function paintStreaks(el, count){
+    el.innerHTML = "";
+    for(let i=0;i<count;i++){
+      const s = document.createElement("span");
+      s.style.top = (Math.random()*100)+"%";
+      s.style.animationDuration = (5+Math.random()*6)+"s";
+      s.style.animationDelay = (-Math.random()*6)+"s";
+      s.style.opacity = (0.3+Math.random()*0.5);
+      el.appendChild(s);
     }
-
-    clearTimeout(toastTimer);
-    betaToast.textContent = isOn
-      ? '✦ Beta v3 — 12 new features active'
-      : '✦ Beta features disabled';
-    betaToast.style.whiteSpace = 'pre-line';
-    betaToast.classList.add('show');
-    toastTimer = setTimeout(() => betaToast.classList.remove('show'), 2400);
-  });
-
-  // ── 1. CHANGELOG ──
-  const changelogBtn = document.getElementById('changelog-btn');
-  const changelogTab = document.getElementById('changelog-tab');
-  const changelogClose = document.getElementById('changelog-close');
-  changelogBtn.addEventListener('click', () => {
-    const open = changelogTab.classList.toggle('open');
-    changelogBtn.classList.toggle('open', open);
-  });
-  changelogClose.addEventListener('click', () => {
-    changelogTab.classList.remove('open');
-    changelogBtn.classList.remove('open');
-  });
-
-  // ── 2. FONT SIZE SLIDER ──
-  const fontSlider = document.getElementById('font-size-slider');
-  const fontVal = document.getElementById('font-size-val');
-  fontSlider.addEventListener('input', () => {
-    const pct = parseInt(fontSlider.value);
-    fontVal.textContent = pct + '%';
-    const scale = pct / 100;
-    // Apply scaling via CSS custom property on root so em-based sizes cascade
-    document.documentElement.style.setProperty('--text-scale', scale);
-    // Directly scale tags and words since they use fixed px sizes
-    const baseTag = 12, baseWord = 11;
-    document.querySelectorAll('.tag').forEach(el => {
-      el.style.fontSize = (baseTag * scale) + 'px';
-    });
-    document.querySelectorAll('.word').forEach(el => {
-      el.style.fontSize = (baseWord * scale) + 'px';
-    });
-  });
-
-  // ── 3. PHRASE BUILDER ──
-  const phraseOutput = document.getElementById('phrase-output');
-  const pbCopy = document.getElementById('pb-copy-btn');
-  const pbClear = document.getElementById('pb-clear-btn');
-
-  function attachPhraseClick(els) {
-    els.forEach(el => {
-      if (el.dataset.phraseAttached) return;
-      el.dataset.phraseAttached = '1';
-      el.addEventListener('click', () => {
-        if (!document.body.classList.contains('beta-on')) return;
-        const word = el.textContent.trim();
-        const current = phraseOutput.textContent.trim();
-        phraseOutput.textContent = current ? current + ' ' + word : word;
-        phraseOutput.scrollLeft = phraseOutput.scrollWidth;
-      });
-    });
   }
-  attachPhraseClick(document.querySelectorAll('.word'));
-  // Also allow clicking tags to add to phrase builder
-  document.querySelectorAll('.tag').forEach(tag => {
-    tag.addEventListener('click', () => {
-      if (!document.body.classList.contains('beta-on')) return;
-      const text = Array.from(tag.childNodes)
-        .filter(n => n.nodeType === Node.TEXT_NODE)
-        .map(n => n.textContent).join('').trim();
-      if (text) phraseOutput.textContent = text;
-    });
+  ["title-streaks","game-streaks","results-streaks","mm-streaks"].forEach(id=>{
+    paintStreaks(document.getElementById(id), 5);
   });
 
-  pbCopy.addEventListener('click', () => {
-    const text = phraseOutput.textContent.trim();
-    if (!text) return;
-    navigator.clipboard.writeText(text).catch(() => {});
-    pbCopy.textContent = '✓ COPIED';
-    setTimeout(() => { pbCopy.textContent = 'COPY'; }, 1400);
-  });
-  pbClear.addEventListener('click', () => {
-    phraseOutput.textContent = '';
-    phraseOutput.focus();
-  });
+  // ---------- options ----------
+  const opts = { reducedMotion:false, shake:true, sound:true };
+  const optReduced = document.getElementById("opt-reduced-motion");
+  const optShake = document.getElementById("opt-shake");
+  const optSound = document.getElementById("opt-sound");
+  if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    opts.reducedMotion = true; optReduced.checked = true;
+  }
+  optReduced.addEventListener("change", e=> opts.reducedMotion = e.target.checked);
+  optShake.addEventListener("change", e=> opts.shake = e.target.checked);
+  optSound.addEventListener("change", e=> opts.sound = e.target.checked);
 
-  // ── 4. STATS PANEL (counts from DOM) ──
-  // Already hardcoded in HTML with accurate counts from the page content
+  // ---------- tiny audio ----------
+  let actx = null;
+  function beep(freq, dur, type, gain){
+    if(!opts.sound) return;
+    try{
+      if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = type || "square";
+      o.frequency.value = freq;
+      g.gain.value = gain!=null?gain:0.06;
+      o.connect(g); g.connect(actx.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + (dur||0.1));
+      o.stop(actx.currentTime + (dur||0.1)+0.02);
+    }catch(e){ /* audio unavailable, ignore */ }
+  }
+  const sfx = {
+    food: ()=> beep(880,0.08,"square",0.05),
+    attackCharge: ()=> beep(520,0.05,"square",0.03),
+    attackLaunch: ()=> beep(220,0.25,"sawtooth",0.09),
+    elim: ()=> beep(140,0.15,"square",0.05),
+    death: ()=> beep(90,0.4,"sawtooth",0.08),
+    victory: ()=> beep(660,0.5,"triangle",0.09),
+    target: ()=> beep(1200,0.04,"square",0.02)
+  };
 
-  // ── 5. SECTION JUMP NAV ──
-  document.querySelectorAll('.jump-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.preventDefault();
-      const id = btn.getAttribute('href').slice(1);
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
-
-  // ── 6–8. COMPACT / RANDOM / EXPORT removed in v4 ──
-
-  // ── 9. BOOKMARK (double-click tags) ──
-  const bookmarksPanel = document.getElementById('bookmarks-panel');
-  const bookmarkSet = new Set();
-
-  function refreshBookmarksPanel() {
-    const list = bookmarksPanel.querySelector('.bm-list');
-    list.innerHTML = '';
-    bookmarkSet.forEach(text => {
-      const item = document.createElement('span');
-      item.className = 'bm-item';
-      item.textContent = text;
-      item.title = 'Click to copy';
-      item.addEventListener('click', () => {
-        navigator.clipboard.writeText(text).catch(() => {});
-        item.textContent = '✓ ' + text;
-        setTimeout(() => { item.textContent = text; }, 1000);
-      });
-      list.appendChild(item);
-    });
-    bookmarksPanel.classList.toggle('has-items', bookmarkSet.size > 0);
+  // ---------- screen management ----------
+  const screens = {
+    title: document.getElementById("screen-title"),
+    matchmaking: document.getElementById("screen-matchmaking"),
+    lobby: document.getElementById("screen-lobby"),
+    game: document.getElementById("screen-game"),
+    results: document.getElementById("screen-results"),
+  };
+  function showScreen(name){
+    Object.values(screens).forEach(s=>s.classList.remove("active"));
+    screens[name].classList.add("active");
   }
 
-  document.querySelectorAll('.tag').forEach(tag => {
-    tag.addEventListener('dblclick', e => {
-      if (!document.body.classList.contains('beta-on')) return;
-      e.preventDefault();
-      const text = Array.from(tag.childNodes)
-        .filter(n => n.nodeType === Node.TEXT_NODE)
-        .map(n => n.textContent).join('').trim();
-      if (!text) return;
-      if (bookmarkSet.has(text)) {
-        bookmarkSet.delete(text);
-        tag.classList.remove('bookmarked');
-      } else {
-        bookmarkSet.add(text);
-        tag.classList.add('bookmarked');
+  // ---------- name generator for bots ----------
+  const NAME_A = ["NEON","GRID","VOID","IRON","ACID","RUST","GHOST","NOVA","VENOM","ZERO","ONYX","FLUX","CINDER","RIPTIDE","STATIC"];
+  const NAME_B = ["VIPER","WOLF","FANG","BYTE","HAWK","REAPER","DRIFT","SPARK","COBRA","WRAITH","PIXEL","TALON","STRIKE","ECHO","MAMBA"];
+  function randomName(){
+    return NAME_A[Math.floor(Math.random()*NAME_A.length)] + NAME_B[Math.floor(Math.random()*NAME_B.length)];
+  }
+  const TARGET_MODES = ["RANDOM","CLOSEST","LONGEST SNAKE","HIGHEST RANK","MOST DANGEROUS"];
+
+  // =========================================================================
+  // NETWORK LAYER
+  // -------------------------------------------------------------------------
+  // This is the real client for the authoritative Node/WebSocket server (see
+  // /server/server.js). It owns matchmaking, the lobby, and — once a match
+  // starts — every real player's movement, food, collisions and eliminations.
+  // The client only renders what the server says and sends it input.
+  //
+  // SET THIS after you deploy the server (Render/Railway/Fly/a VPS all work):
+  const SERVER_URL = (new URLSearchParams(location.search).get("server"))
+    || "wss://YOUR-SNAKE99-SERVER.example.com";
+  // You can also override per-visit with ?server=wss://your-host without
+  // editing this file, handy while testing a deploy.
+  //
+  // If SERVER_URL is left as the placeholder above, or the socket can't
+  // connect, the game falls back to a fully offline solo mode (matchmaking
+  // and lobby are simulated locally, gameplay runs exactly like the original
+  // single-player build) so there's always a playable build either way.
+  // =========================================================================
+  // Identity note: a player's *connection* to the server (this socket) is
+  // separate from their *profile* (persistent username + recovery code +
+  // career stats). identify()/restore() below establish the profile once
+  // the socket is open; see the "IDENTITY" section further down for the UI.
+  const Net = (function(){
+    let ws = null;
+    let online = false;
+    let settled = false;
+    let resolveReady;
+    const readyPromise = new Promise(res => resolveReady = res);
+    const handlers = {};
+    let myName = randomName();
+    let myCode = null;   // plaintext, known only client-side once issued/typed
+    let myStats = null;
+    let myPid = null;
+    let welcomeWaiters = [];
+
+    function settle(v){
+      if(settled) return;
+      settled = true; online = v; resolveReady(v);
+    }
+    function emit(type, payload){
+      (handlers[type]||[]).forEach(fn=>{ try{ fn(payload); }catch(e){ console.error(e); } });
+    }
+    function connect(){
+      if(!SERVER_URL || SERVER_URL.indexOf("YOUR-SNAKE99-SERVER")!==-1){
+        settle(false);
+        return;
       }
-      refreshBookmarksPanel();
+      let socket;
+      try{ socket = new WebSocket(SERVER_URL); }catch(e){ settle(false); return; }
+      ws = socket;
+      const timeout = setTimeout(()=>{ if(!settled) settle(false); }, 3000);
+      socket.onopen = ()=>{
+        clearTimeout(timeout);
+        online = true;
+        settle(true);
+      };
+      socket.onmessage = (e)=>{
+        let m;
+        try{ m = JSON.parse(e.data); }catch(err){ return; }
+        if(m.t==="welcome"){
+          myPid = m.pid;
+          if(m.name) myName = m.name;
+          if(m.code) myCode = m.code; // only ever sent once, at issuance
+          if(m.stats) myStats = m.stats;
+          welcomeWaiters.forEach(fn=>fn(m));
+          welcomeWaiters = [];
+        }
+        if(m.t==="eliminated" && m.stats) myStats = m.stats;
+        emit(m.t, m);
+      };
+      socket.onclose = ()=>{ online = false; settle(false); emit("disconnected", {}); };
+      socket.onerror = ()=>{ /* onclose follows */ };
+    }
+    connect();
+    window.addEventListener("beforeunload", ()=>{
+      if(online) send("leave", {});
     });
+    function send(type, payload){
+      if(ws && ws.readyState===1) ws.send(JSON.stringify(Object.assign({t:type}, payload||{})));
+    }
+    return {
+      ready(){ return readyPromise; },
+      get online(){ return online; },
+      get name(){ return myName; },
+      set name(v){ myName = v; },
+      get code(){ return myCode; },
+      get stats(){ return myStats; },
+      get pid(){ return myPid; },
+      send,
+      on(type, fn){ (handlers[type] = handlers[type]||[]).push(fn); },
+      // establishes (or resumes) a profile on the server. Pass a code to
+      // attempt a restore; omit it to create a brand-new profile.
+      identify(name, code){
+        myName = (name || myName || randomName()).slice(0,16).toUpperCase();
+        return new Promise(resolve=>{
+          welcomeWaiters.push(resolve);
+          send(code ? "restore" : "hello", code ? { name: myName, code } : { name: myName });
+        });
+      },
+    };
+  })();
+
+  // ---------- classic cartridge skins, picked at random each run ----------
+  const MODES = [
+    { id:"ex",     label:"SNAKE EX",     year:"2002", bg:"#C6D6A4", fg:"#33421E", accent:"#2B6BFF", wrap:false, obstacles:0, startTick:130 },
+    { id:"ex2",    label:"SNAKE EX2",    year:"2003", bg:"#B7C6DA", fg:"#22314A", accent:"#5D7FE0", wrap:false, obstacles:3, startTick:115 },
+    { id:"xenzia", label:"SNAKE XENZIA", year:"2005", bg:"#EBD2D2", fg:"#7A1F1F", accent:"#E0475D", wrap:true,  obstacles:0, startTick:120 }
+  ];
+  function pickMode(){ return MODES[Math.floor(Math.random()*MODES.length)]; }
+  function applyModeChrome(mode){
+    document.documentElement.style.setProperty("--mode-accent", mode.accent);
+    document.getElementById("board-caption").textContent = mode.label+" — "+mode.year;
+    document.getElementById("hud-mode").textContent = mode.wrap ? "BORDERLESS FIELD" : (mode.obstacles ? "OBSTACLE FIELD" : "CLASSIC FIELD");
+  }
+
+  // ================= GAME STATE =================
+  const GRID = 22;
+  const CELL = 10; // canvas is 220x220
+  const canvas = document.getElementById("board");
+  const ctx = canvas.getContext("2d");
+
+  let game = null; // holds full run state (online or offline)
+
+  function newBotPool(n){
+    const pool = [];
+    for(let i=0;i<n;i++) pool.push({ name: randomName() });
+    return pool;
+  }
+
+  // ---------- live opponent tiles (Tetris-99-style rails) ----------
+  // These are always simulated locally for motion/flavor — even in an online
+  // match the server doesn't stream every bot's exact position, only who got
+  // eliminated and when. Real connected players (peers) are the exception:
+  // their tiles are driven by real server data, tagged "LIVE".
+  const TILE_GRID = 8;
+  const TILE_TOTAL = 98;
+  let tiles = [];
+
+  function buildTileDom(){
+    const left = document.getElementById("rail-left");
+    const right = document.getElementById("rail-right");
+    left.innerHTML = ""; right.innerHTML = "";
+    tiles = [];
+    for(let i=0;i<TILE_TOTAL;i++){
+      const el = document.createElement("div");
+      el.className = "bot-tile";
+      const cv = document.createElement("canvas");
+      cv.width = 48; cv.height = 48;
+      const badge = document.createElement("div");
+      badge.className = "ko-badge";
+      badge.innerHTML = '<span class="ko-lbl">FINISHED</span><span class="ko-num"></span>';
+      el.appendChild(cv); el.appendChild(badge);
+      (i%2===0 ? left : right).appendChild(el);
+      tiles.push({ el, cv, cx: cv.getContext("2d"), badge, alive:false, name:null, nextMove:0 });
+    }
+  }
+
+  function spawnTile(tile){
+    tile.alive = true;
+    tile.isPeer = false; tile.peerId = null;
+    tile.el.classList.remove("ko","empty","settled","peer");
+    tile.badge.style.opacity = 0;
+    tile.name = randomName();
+    const cx = Math.floor(TILE_GRID/2);
+    tile.snake = [{x:cx,y:cx},{x:cx-1,y:cx}];
+    tile.dir = {x:1,y:0};
+    tile.food = randomTileCell(tile.snake);
+    tile.interval = 220 + Math.random()*180;
+    tile.nextMove = performance.now() + Math.random()*300;
+  }
+
+  function randomTileCell(occupied){
+    let x,y,clash;
+    do{
+      x = Math.floor(Math.random()*TILE_GRID);
+      y = Math.floor(Math.random()*TILE_GRID);
+      clash = occupied.some(s=>s.x===x && s.y===y);
+    }while(clash);
+    return {x,y};
+  }
+
+  function stepTile(tile){
+    const head = tile.snake[0];
+    let dir = tile.dir;
+    const willHitWall = (head.x+dir.x<0 || head.x+dir.x>=TILE_GRID || head.y+dir.y<0 || head.y+dir.y>=TILE_GRID);
+    if(willHitWall || Math.random()<0.18){
+      const options = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}].filter(d=>{
+        if(d.x===-dir.x && d.y===-dir.y) return false;
+        const nx=head.x+d.x, ny=head.y+d.y;
+        return nx>=0 && nx<TILE_GRID && ny>=0 && ny<TILE_GRID;
+      });
+      if(options.length) dir = options[Math.floor(Math.random()*options.length)];
+    }
+    tile.dir = dir;
+    const nh = {x:head.x+dir.x, y:head.y+dir.y};
+    tile.snake.unshift(nh);
+    if(nh.x===tile.food.x && nh.y===tile.food.y){
+      if(tile.snake.length < 9) { /* keep the grown segment */ } else tile.snake.pop();
+      tile.food = randomTileCell(tile.snake);
+    } else {
+      tile.snake.pop();
+    }
+  }
+
+  function drawTile(tile){
+    const cx = tile.cx;
+    const bg = (game && game.mode) ? game.mode.bg : "#C6D6A4";
+    const fg = (game && game.mode) ? game.mode.fg : "#33421E";
+    cx.fillStyle = bg;
+    cx.fillRect(0,0,48,48);
+    const cell = 48/TILE_GRID;
+    cx.fillStyle = fg;
+    const f = tile.food;
+    cx.fillRect(f.x*cell+1, f.y*cell+1, cell-2, cell-2);
+    tile.snake.forEach(s=> cx.fillRect(s.x*cell, s.y*cell, cell-1, cell-1));
+  }
+
+  function tickTiles(now){
+    for(const tile of tiles){
+      if(!tile.alive || tile.isPeer) continue;
+      if(now >= tile.nextMove){
+        tile.nextMove = now + tile.interval;
+        stepTile(tile);
+        drawTile(tile);
+      }
+    }
+  }
+
+  function initTiles(totalBots){
+    buildTileDom();
+    const visibleCount = Math.min(TILE_TOTAL, totalBots);
+    game.hiddenBots = totalBots - visibleCount;
+    for(let i=0;i<TILE_TOTAL;i++){
+      if(i<visibleCount) spawnTile(tiles[i]);
+      else tiles[i].el.classList.add("empty");
+    }
+  }
+
+  function pickAliveTile(){
+    const alive = tiles.filter(t=>t.alive && !t.isPeer);
+    if(!alive.length) return null;
+    return alive[Math.floor(Math.random()*alive.length)];
+  }
+
+  function knockOutTile(tile, place){
+    tile.alive = false;
+    tile.el.classList.add("ko");
+    tile.badge.querySelector(".ko-num").textContent = place;
+    setTimeout(()=>{
+      if(game && game.hiddenBots > 0){
+        game.hiddenBots--;
+        tile.el.classList.remove("settled");
+        spawnTile(tile);
+      } else {
+        tile.el.classList.add("settled");
+      }
+    }, 1100);
+  }
+
+  // ---------- peer <-> tile bridging (real players rendered inside the rails) ----------
+  const peerTileByPeerId = new Map();
+  let knownLivePeerIds = new Set();
+  function assignPeerTile(peerId, name){
+    if(peerTileByPeerId.has(peerId)) return peerTileByPeerId.get(peerId);
+    const free = tiles.find(t=> t.alive && !t.isPeer);
+    if(!free) return null;
+    free.isPeer = true; free.peerId = peerId; free.name = name;
+    free.el.classList.add("peer");
+    peerTileByPeerId.set(peerId, free);
+    return free;
+  }
+  function releasePeerTile(peerId){
+    const t = peerTileByPeerId.get(peerId);
+    if(t){ t.isPeer = false; t.peerId = null; t.el.classList.remove("peer"); }
+    peerTileByPeerId.delete(peerId);
+  }
+  function syncPeerTilesOnline(peers){
+    if(!game) return;
+    const nowIds = new Set(peers.map(p=>p.id));
+    knownLivePeerIds.forEach(pid=>{
+      if(!nowIds.has(pid) && peerTileByPeerId.has(pid)){
+        const t = peerTileByPeerId.get(pid);
+        if(t && t.alive) knockOutTile(t, game.remaining);
+        releasePeerTile(pid);
+      }
+    });
+    peers.forEach(p=>{
+      const t = assignPeerTile(p.id, p.name);
+      if(!t || !p.snake) return;
+      const scaled = p.snake.map(s=>({
+        x: Math.min(TILE_GRID-1, Math.floor(s.x/GRID*TILE_GRID)),
+        y: Math.min(TILE_GRID-1, Math.floor(s.y/GRID*TILE_GRID))
+      }));
+      t.snake = scaled.length ? scaled : t.snake;
+      t.food = t.food || {x:0,y:0};
+      drawTile(t);
+    });
+    knownLivePeerIds = nowIds;
+  }
+
+  // =========================================================================
+  // IDENTITY — username + recovery code, career progress
+  // -------------------------------------------------------------------------
+  // The server issues a hidden recovery code the first time a profile is
+  // created (hashed on the server, never stored in plaintext there — see
+  // server.js). Revealing it here just toggles showing the client's own
+  // locally-held copy; the server is never asked for it again. Typing that
+  // same code back in alongside the matching username resumes the profile's
+  // career stats on any device/browser.
+  // =========================================================================
+  const usernameInput = document.getElementById("username-input");
+  const identityCodeEl = document.getElementById("identity-code");
+  const identityStatsEl = document.getElementById("identity-stats");
+  const btnRevealCode = document.getElementById("btn-reveal-code");
+  const btnShowRestore = document.getElementById("btn-show-restore");
+  const restorePanel = document.getElementById("identity-restore-panel");
+  const restoreCodeInput = document.getElementById("restore-code-input");
+  const btnRestore = document.getElementById("btn-restore");
+  const restoreMsgEl = document.getElementById("identity-restore-msg");
+
+  let identityEstablished = false;
+  let codeRevealed = false;
+
+  function renderIdentityCode(){
+    if(!Net.code){ identityCodeEl.textContent = "••••-••••"; identityCodeEl.classList.remove("revealed"); return; }
+    identityCodeEl.textContent = codeRevealed ? Net.code : "••••-••••";
+    identityCodeEl.classList.toggle("revealed", codeRevealed);
+  }
+  function renderIdentityStats(){
+    if(Net.stats){
+      const s = Net.stats;
+      identityStatsEl.innerHTML = "<b>"+s.wins+"</b> WINS · <b>"+s.gamesPlayed+"</b> GAMES"
+        + (s.bestPlacement ? " · BEST <b>"+ordinal(s.bestPlacement)+"</b>" : "");
+    } else {
+      identityStatsEl.textContent = "";
+    }
+  }
+  function persistIdentity(){
+    try{
+      localStorage.setItem("snake99_name", Net.name);
+      if(Net.code) localStorage.setItem("snake99_code", Net.code);
+    }catch(e){ /* private mode, etc */ }
+  }
+
+  btnRevealCode.addEventListener("click", ()=>{
+    codeRevealed = !codeRevealed;
+    btnRevealCode.textContent = codeRevealed ? "HIDE" : "REVEAL";
+    renderIdentityCode();
+  });
+  btnShowRestore.addEventListener("click", ()=>{
+    restorePanel.hidden = !restorePanel.hidden;
   });
 
-  // ── 10. KEYBOARD SHORTCUTS ──
-  const kbTip = document.getElementById('kb-tip');
-  let kbTipTimer;
-  function showKbTip() {
-    kbTip.classList.add('show');
-    clearTimeout(kbTipTimer);
-    kbTipTimer = setTimeout(() => kbTip.classList.remove('show'), 3500);
+  // Establishes a server-side profile for whatever's currently in the
+  // username field, resuming via a locally-saved code when the name
+  // matches what was saved earlier on this device. No-ops when offline.
+  async function ensureIdentity(){
+    await Net.ready();
+    if(!Net.online) { Net.name = usernameInput.value.trim() || Net.name; return false; }
+    if(identityEstablished) return true;
+    const typedName = usernameInput.value.trim();
+    const savedName = localStorage.getItem("snake99_name");
+    const savedCode = localStorage.getItem("snake99_code");
+    const name = typedName || savedName || randomName();
+    const code = (savedCode && (!typedName || typedName.toLowerCase() === (savedName||"").toLowerCase())) ? savedCode : undefined;
+    await Net.identify(name, code);
+    identityEstablished = true;
+    usernameInput.value = Net.name;
+    persistIdentity();
+    renderIdentityCode();
+    renderIdentityStats();
+    return true;
   }
-  document.addEventListener('keydown', e => {
-    if (!document.body.classList.contains('beta-on')) return;
-    const searchInput = document.getElementById('search-input');
-    if (e.key === '/' && document.activeElement !== searchInput && document.activeElement !== phraseOutput) {
+
+  btnRestore.addEventListener("click", async ()=>{
+    const name = usernameInput.value.trim() || randomName();
+    const code = restoreCodeInput.value.trim();
+    if(!code){ restoreMsgEl.textContent = "Enter a code first."; restoreMsgEl.className = "identity-restore-msg err"; return; }
+    await Net.ready();
+    if(!Net.online){ restoreMsgEl.textContent = "No server connected."; restoreMsgEl.className = "identity-restore-msg err"; return; }
+    restoreMsgEl.textContent = "Checking…"; restoreMsgEl.className = "identity-restore-msg";
+    const payload = await Net.identify(name, code);
+    identityEstablished = true;
+    usernameInput.value = Net.name;
+    persistIdentity();
+    renderIdentityCode();
+    renderIdentityStats();
+    if(payload.restored){
+      restoreMsgEl.textContent = "Welcome back, "+Net.name+"!";
+      restoreMsgEl.className = "identity-restore-msg ok";
+      setTimeout(()=>{ restorePanel.hidden = true; }, 900);
+    } else {
+      restoreMsgEl.textContent = "That code didn't match that name — started a fresh profile instead.";
+      restoreMsgEl.className = "identity-restore-msg err";
+    }
+  });
+
+  // Prefill the name field, and silently resume in the background if this
+  // browser already has saved credentials — no click required.
+  (async ()=>{
+    const savedName = localStorage.getItem("snake99_name");
+    usernameInput.value = savedName || randomName();
+    await Net.ready();
+    if(Net.online && savedName && localStorage.getItem("snake99_code")){
+      await ensureIdentity();
+    }
+  })();
+
+  // ---------- matchmaking + lobby ----------
+  let currentMatchId = null;
+  let usingOnline = false;
+  let mmFoundTimer = null;
+  let lobbyCountdownTimer = null;
+  let lobbySecondsLeft = 12;
+  let iAmReady = false;
+
+  async function enterMatchmaking(){
+    showScreen("matchmaking");
+    document.getElementById("mm-found").textContent = "1";
+    document.getElementById("mm-sub").textContent = "Connecting to server…";
+    await Net.ready();
+    usingOnline = Net.online;
+    if(usingOnline){
+      document.getElementById("mm-sub").textContent = "Setting up your profile…";
+      await ensureIdentity();
+      document.getElementById("mm-sub").textContent = "Searching for open lobbies…";
+      Net.send("queue", {});
+    } else {
+      await ensureIdentity();
+      document.getElementById("mm-sub").textContent = "No server connected — practicing solo.";
+      clearInterval(mmFoundTimer);
+      setTimeout(enterOfflineLobby, 1200 + Math.random()*600);
+    }
+  }
+
+  function cancelMatchmaking(){
+    clearInterval(mmFoundTimer);
+    if(usingOnline) Net.send("leave", {});
+    showScreen("title");
+  }
+
+  function leaveLobby(){
+    clearInterval(lobbyCountdownTimer);
+    if(usingOnline) Net.send("leave", {});
+    showScreen("title");
+  }
+
+  function toggleReady(){
+    if(usingOnline){
+      iAmReady = !iAmReady;
+      Net.send("ready", { v: iAmReady });
+      // server's next "lobby" broadcast will resync the button + roster
+    } else {
+      iAmReady = !iAmReady;
+      renderButtonReady();
+      renderRosterOffline();
+    }
+  }
+
+  function renderButtonReady(){
+    const btn = document.getElementById("btn-ready");
+    btn.textContent = iAmReady ? "READY ✓" : "READY UP";
+    btn.classList.toggle("is-ready", iAmReady);
+  }
+
+  // ---- online lobby ----
+  Net.on("lobby", (payload)=>{
+    currentMatchId = payload.matchId;
+    lobbySecondsLeft = payload.secondsLeft;
+    showScreen("lobby");
+    document.getElementById("lobby-ready-count").textContent = payload.roster.length;
+    document.getElementById("lobby-total-count").textContent = payload.totalSlots;
+    document.getElementById("lobby-timer").textContent = payload.secondsLeft;
+    let rows = "";
+    payload.roster.forEach(r=>{
+      const isYou = r.id === payload.you;
+      if(isYou) iAmReady = r.ready;
+      rows += '<div class="roster-row'+(isYou?' is-you':'')+(r.ready?' is-ready':'')+'">'
+        + '<div class="roster-avatar">'+(isYou?"YOU":(r.name||"??").slice(0,2))+'</div>'
+        + '<div class="roster-name">'+(r.name||"UNKNOWN")+'</div>'
+        + '<span class="roster-tag'+(isYou?'':' live')+'">'+(isYou?"YOU":"LIVE")+'</span>'
+        + '<div class="roster-ready-dot"></div></div>';
+    });
+    rows += '<div class="roster-fill-note">+ '+(payload.totalSlots-payload.roster.length)+' MATCHED BY SERVER</div>';
+    document.getElementById("roster-list").innerHTML = rows;
+    renderButtonReady();
+  });
+
+  // ---- offline (no server) lobby ----
+  function enterOfflineLobby(){
+    currentMatchId = null;
+    lobbySecondsLeft = 8;
+    iAmReady = false;
+    showScreen("lobby");
+    renderRosterOffline();
+    renderButtonReady();
+    clearInterval(lobbyCountdownTimer);
+    lobbyCountdownTimer = setInterval(()=>{
+      lobbySecondsLeft -= iAmReady ? 3 : 1;
+      if(lobbySecondsLeft <= 0){
+        clearInterval(lobbyCountdownTimer);
+        startOfflineRun();
+        return;
+      }
+      document.getElementById("lobby-timer").textContent = lobbySecondsLeft;
+    }, 1000);
+  }
+  function renderRosterOffline(){
+    document.getElementById("lobby-ready-count").textContent = "1";
+    document.getElementById("lobby-total-count").textContent = "99";
+    document.getElementById("lobby-timer").textContent = lobbySecondsLeft;
+    document.getElementById("roster-list").innerHTML =
+      '<div class="roster-row is-you'+(iAmReady?' is-ready':'')+'">'
+      + '<div class="roster-avatar">YOU</div><div class="roster-name">'+Net.name+'</div>'
+      + '<span class="roster-tag">OFFLINE</span><div class="roster-ready-dot"></div></div>'
+      + '<div class="roster-fill-note">+98 SIMULATED — no server connected</div>';
+  }
+
+  // ---------- shared chrome for entering the game screen ----------
+  function initGameChrome(mode){
+    applyModeChrome(mode);
+    initTiles(98);
+    document.getElementById("feed").innerHTML = "";
+    document.getElementById("danger-vignette").classList.remove("on");
+    document.getElementById("meter-fill").style.width = "0%";
+    document.getElementById("meter-fill").classList.remove("full");
+    document.getElementById("hud-target").textContent = "—";
+    showScreen("game");
+    flashBanner(mode.label+" • "+mode.year);
+  }
+
+  // =========================================================================
+  // ONLINE MATCH — state comes from the server; client only renders + inputs
+  // =========================================================================
+  function startOnlineRun(payload){
+    peerTileByPeerId.clear();
+    knownLivePeerIds = new Set();
+    game = {
+      online: true,
+      mode: payload.mode,
+      snake: payload.snake,
+      dir: {x:1,y:0},
+      mouthOpen: false,
+      food: payload.food,
+      obstacles: payload.obstacles,
+      alive: true,
+      score: 0,
+      attackMeter: 0,
+      attacksLaunched: 0,
+      remaining: 99,
+      tier: "early",
+      raf: null,
+      hiddenBots: 0,
+    };
+    initGameChrome(game.mode);
+    updateHudStatic();
+    loop();
+  }
+
+  Net.on("tick", (payload)=>{
+    if(!game || !game.online) return;
+    const you = payload.you;
+    game.snake = you.snake;
+    game.dir = you.dir;
+    if(you.food) game.food = you.food;
+    game.alive = you.alive;
+    game.score = you.score;
+    game.remaining = you.remaining;
+    game.attackMeter = you.attackMeter;
+    game.attacksLaunched = you.attacksLaunched || 0;
+    game.mouthOpen = !game.mouthOpen;
+    const fill = document.getElementById("meter-fill");
+    fill.style.width = you.attackMeter + "%";
+    fill.classList.toggle("full", you.attackMeter >= 100);
+    document.getElementById("hud-target").textContent = you.target ? you.target.name : "—";
+    updateHudStatic();
+    syncPeerTilesOnline(payload.peers || []);
+  });
+
+  Net.on("feed", (payload)=>{
+    addFeedLine(payload.text, payload.byPlayer);
+    if(game && game.online && !payload.byPlayer){
+      const t = pickAliveTile();
+      if(t) knockOutTile(t, game.remaining);
+      sfx.elim();
+    }
+  });
+
+  Net.on("tier", (payload)=>{
+    if(!game) return;
+    game.tier = payload.tier;
+    const vign = document.getElementById("danger-vignette");
+    if(payload.tier==="top10" || payload.tier==="final") vign.classList.add("on"); else vign.classList.remove("on");
+    if(payload.banner) flashBanner(payload.banner);
+    updateHudStatic();
+  });
+
+  Net.on("eliminated", (payload)=>{
+    if(!game) return;
+    if(payload.won){
+      endRun(true, 1);
+    } else {
+      game.alive = false;
+      sfx.death();
+      endRun(false, payload.place);
+    }
+  });
+
+  Net.on("disconnected", ()=>{
+    if(game && game.online && game.alive){
+      addFeedLine("Connection to server lost", false);
+    }
+  });
+
+  // =========================================================================
+  // OFFLINE MATCH — fully local simulation (identical to the original
+  // single-player build), used whenever no server is reachable
+  // =========================================================================
+  function startOfflineRun(){
+    const mode = pickMode();
+    game = {
+      online: false,
+      mode: mode,
+      snake: [{x:11,y:12},{x:10,y:12},{x:9,y:12}],
+      dir: {x:1,y:0},
+      pendingDir: {x:1,y:0},
+      mouthOpen: false,
+      food: null,
+      obstacles: [],
+      tickMs: mode.startTick,
+      lastTick: 0,
+      alive: true,
+      score: 0,
+      attackMeter: 0,
+      attacksLaunched: 0,
+      remaining: 99,
+      bots: newBotPool(98),
+      targetMode: 0,
+      targetName: null,
+      elimTimer: 0,
+      elimIntervalMs: 900,
+      tier: "early",
+      raf: null
+    };
+    generateObstacles();
+    placeFood();
+    pickTargetOffline();
+    initGameChrome(mode);
+    updateHudStatic();
+    game.lastTick = performance.now();
+    loop();
+  }
+
+  function generateObstacles(){
+    game.obstacles = [];
+    for(let i=0;i<game.mode.obstacles;i++){
+      let ox, oy, clash;
+      do{
+        ox = 4 + Math.floor(Math.random()*(GRID-8));
+        oy = 4 + Math.floor(Math.random()*(GRID-8));
+        clash = game.snake.some(s=>s.x===ox && s.y===oy) || game.obstacles.some(o=>o.x===ox && o.y===oy);
+      }while(clash);
+      game.obstacles.push({x:ox, y:oy});
+    }
+  }
+
+  function pickTargetOffline(){
+    if(game.bots.length===0){ game.targetName=null; document.getElementById("hud-target").textContent="—"; return; }
+    const b = game.bots[Math.floor(Math.random()*game.bots.length)];
+    game.targetName = b.name;
+    document.getElementById("hud-target").textContent = b.name;
+  }
+
+  function cycleTargetModeOffline(){
+    game.targetMode = (game.targetMode+1) % TARGET_MODES.length;
+    pickTargetOffline();
+    sfx.target();
+  }
+
+  function placeFood(){
+    let fx, fy, clash;
+    do{
+      fx = Math.floor(Math.random()*GRID);
+      fy = Math.floor(Math.random()*GRID);
+      clash = game.snake.some(s=>s.x===fx && s.y===fy) || game.obstacles.some(o=>o.x===fx && o.y===fy);
+    }while(clash);
+    game.food = {x:fx, y:fy};
+  }
+
+  function eliminateOneBot(byPlayer){
+    if(game.bots.length===0) return;
+    const idx = Math.floor(Math.random()*game.bots.length);
+    const bot = game.bots.splice(idx,1)[0];
+    const placeAtKO = game.remaining;
+    game.remaining -= 1;
+
+    const tile = pickAliveTile();
+    if(tile) knockOutTile(tile, placeAtKO);
+
+    if(byPlayer){
+      addFeedLine("YOU eliminated <b>"+bot.name+"</b>", true);
+      game.attacksLaunched++;
+      sfx.attackLaunch();
+    } else {
+      addFeedLine((tile ? tile.name : bot.name)+" eliminated <b>"+randomName()+"</b>");
+      sfx.elim();
+    }
+    if(game.targetName===bot.name) pickTargetOffline();
+    refreshTier();
+    updateHudStatic();
+    if(game.remaining<=1){
+      endRun(true, 1);
+    }
+  }
+
+  function refreshTier(){
+    const r = game.remaining;
+    if(r<=2) setTier("final");
+    else if(r<=10) setTier("top10");
+    else if(r<=50) setTier("mid");
+    else setTier("early");
+  }
+
+  // =========================================================================
+  // SHARED — HUD, feed, audio-visual feedback, rendering, input, results
+  // =========================================================================
+  function addFeedLine(text, byPlayer){
+    const feed = document.getElementById("feed");
+    const line = document.createElement("div");
+    line.className = "feed-line" + (byPlayer ? " by-player":"");
+    line.innerHTML = text;
+    feed.appendChild(line);
+    feed.scrollTop = feed.scrollHeight;
+    while(feed.children.length > 14) feed.removeChild(feed.firstChild);
+  }
+
+  function setTier(t){
+    if(game.tier===t) return;
+    game.tier = t;
+    const vign = document.getElementById("danger-vignette");
+    if(t==="top10" || t==="top3" || t==="final") vign.classList.add("on"); else vign.classList.remove("on");
+    if(t==="top10") flashBanner("TOP 10");
+    if(t==="top3") flashBanner("TOP 3");
+    if(t==="final") flashBanner("FINAL SHOWDOWN");
+    if(t==="mid") game.elimIntervalMs = 650;
+    if(t==="top10") game.elimIntervalMs = 420;
+    if(t==="top3") game.elimIntervalMs = 300;
+    if(t==="final") game.elimIntervalMs = 900;
+  }
+
+  function flashBanner(text){
+    const b = document.getElementById("flash-banner");
+    b.textContent = text;
+    b.classList.remove("show"); void b.offsetWidth;
+    b.classList.add("show");
+  }
+
+  function shakeScreen(){
+    if(!opts.shake || opts.reducedMotion) return;
+    const wrap = document.getElementById("game-wrap");
+    wrap.classList.remove("shake"); void wrap.offsetWidth;
+    wrap.classList.add("shake");
+  }
+
+  function updateHudStatic(){
+    const rankEl = document.getElementById("hud-rank");
+    rankEl.textContent = game.remaining;
+    rankEl.className = "num" + (game.tier==="mid"?" tier-mid":"") + (game.tier==="top10"||game.tier==="top3"?" tier-top10":"") + (game.tier==="final"?" tier-final":"");
+    document.getElementById("hud-remaining").textContent = game.remaining + " SNAKES ALIVE";
+  }
+
+  function chargeAttack(amount){
+    game.attackMeter = Math.min(100, game.attackMeter + amount);
+    const fill = document.getElementById("meter-fill");
+    fill.style.width = game.attackMeter + "%";
+    if(game.attackMeter>=100) fill.classList.add("full"); else fill.classList.remove("full");
+  }
+
+  function launchAttack(){
+    if(!game || !game.alive || game.attackMeter < 100) return;
+    if(game.online){
+      Net.send("attack", {});
+      game.attackMeter = 0;
+      const fill = document.getElementById("meter-fill");
+      fill.style.width = "0%"; fill.classList.remove("full");
+      shakeScreen();
+    } else {
+      game.attackMeter = 0;
+      const fill = document.getElementById("meter-fill");
+      fill.style.width = "0%"; fill.classList.remove("full");
+      eliminateOneBot(true);
+      shakeScreen();
+    }
+  }
+
+  // ---------- input ----------
+  const keyDirs = {
+    ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1}, ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0},
+    w:{x:0,y:-1}, s:{x:0,y:1}, a:{x:-1,y:0}, d:{x:1,y:0}
+  };
+  window.addEventListener("keydown", (e)=>{
+    if(!game || !game.alive) return;
+    if(keyDirs[e.key]){
+      const d = keyDirs[e.key];
+      if(d.x === -game.dir.x && d.y === -game.dir.y) return;
+      if(game.online){
+        Net.send("input", d);
+        game.dir = d; // optimistic, purely so the bite animation turns instantly
+      } else {
+        game.pendingDir = d;
+      }
       e.preventDefault();
-      searchInput.focus();
-      searchInput.select();
-    }
-    if (e.key === 'Escape') {
-      searchInput.value = '';
-      searchInput.dispatchEvent(new Event('input'));
-      searchInput.blur();
+    } else if(e.key==="t" || e.key==="T"){
+      if(game.online) Net.send("target_cycle", {}); else cycleTargetModeOffline();
+      sfx.target();
+    } else if(e.code==="Space"){
+      launchAttack();
+      e.preventDefault();
     }
   });
 
-  // ── 11. SECTION PROGRESS BARS ──
-  function buildProgressBars() {
-    const maxItems = 73; // movement has the most
-    document.querySelectorAll('.section').forEach(sec => {
-      if (sec.querySelector('.section-progress')) return;
-      const count = sec.querySelectorAll('.tag, .word').length;
-      const pct = Math.min(100, Math.round((count / maxItems) * 100));
-      const color = sec.classList.contains('c-blue') ? '#42a5f5'
-        : sec.classList.contains('c-green') ? '#66bb6a'
-        : sec.classList.contains('c-amber') ? '#ffca28'
-        : sec.classList.contains('c-teal')  ? '#26c6da'
-        : sec.classList.contains('c-purple') ? '#ab47bc'
-        : sec.classList.contains('c-coral')  ? '#ff7043'
-        : '#4fc3f7';
-      const bar = document.createElement('div');
-      bar.className = 'section-progress';
-      const fill = document.createElement('div');
-      fill.className = 'section-progress-fill';
-      fill.style.width = pct + '%';
-      fill.style.background = color;
-      fill.style.opacity = '0.5';
-      bar.appendChild(fill);
-      sec.appendChild(bar);
+  // ---------- game loop ----------
+  function loop(ts){
+    if(!game) return;
+    game.raf = requestAnimationFrame(loop);
+    if(!game.alive) return;
+    const now = ts || performance.now();
+
+    if(!game.online){
+      if(now - game.elimTimer > game.elimIntervalMs){
+        game.elimTimer = now;
+        if(game.tier==="final"){
+          if(Math.random() < 0.5 && game.bots.length>0) eliminateOneBot(false);
+        } else if(game.bots.length>0){
+          eliminateOneBot(false);
+        }
+      }
+      if(now - game.lastTick > game.tickMs){
+        game.lastTick = now;
+        tickSnakeOffline();
+      }
+    }
+
+    tickTiles(now);
+    draw();
+  }
+
+  function tickSnakeOffline(){
+    game.dir = game.pendingDir;
+    game.mouthOpen = !game.mouthOpen;
+    let head = { x: game.snake[0].x + game.dir.x, y: game.snake[0].y + game.dir.y };
+
+    if(game.mode.wrap){
+      head.x = (head.x + GRID) % GRID;
+      head.y = (head.y + GRID) % GRID;
+    } else if(head.x<0 || head.x>=GRID || head.y<0 || head.y>=GRID){
+      return killPlayerOffline();
+    }
+    if(game.snake.some(s=>s.x===head.x && s.y===head.y)){
+      return killPlayerOffline();
+    }
+    if(game.obstacles.some(o=>o.x===head.x && o.y===head.y)){
+      return killPlayerOffline();
+    }
+
+    game.snake.unshift(head);
+
+    if(head.x===game.food.x && head.y===game.food.y){
+      game.score += 10;
+      chargeAttack(16);
+      sfx.food();
+      placeFood();
+      if(game.tickMs>75) game.tickMs -= 2;
+    } else {
+      game.snake.pop();
+    }
+  }
+
+  function killPlayerOffline(){
+    game.alive = false;
+    sfx.death();
+    if(game.raf) cancelAnimationFrame(game.raf);
+    endRun(false, game.remaining);
+  }
+
+  function endRun(won, place){
+    if(game.raf) cancelAnimationFrame(game.raf);
+    const finalPlace = place != null ? place : (won ? 1 : game.remaining);
+    const survived = 99 - finalPlace;
+    document.getElementById("res-place").textContent = won ? "1ST" : ordinal(finalPlace);
+    document.getElementById("res-place").className = "place " + (won ? "win":"loss");
+    document.getElementById("res-subline").textContent = won ? "LAST SNAKE STANDING" : "OUT OF 99";
+    document.getElementById("res-survived").textContent = survived;
+    document.getElementById("res-elims").textContent = game.attacksLaunched || 0;
+    document.getElementById("res-score").textContent = game.score;
+    const careerEl = document.getElementById("res-career");
+    if(game.online && Net.stats){
+      const s = Net.stats;
+      careerEl.innerHTML = "CAREER — <b>"+s.wins+"</b> WINS · <b>"+s.gamesPlayed+"</b> GAMES PLAYED"
+        + (s.bestPlacement ? " · BEST FINISH <b>"+ordinal(s.bestPlacement)+"</b>" : "");
+    } else if(!game.online){
+      careerEl.textContent = "Connect a server to save career progress across matches.";
+    } else {
+      careerEl.textContent = "";
+    }
+    renderIdentityStats();
+    if(won) sfx.victory();
+    if(game.online) Net.send("leave", {});
+    setTimeout(()=> showScreen("results"), won ? 500 : 300);
+  }
+
+  function ordinal(n){
+    const s = ["TH","ST","ND","RD"];
+    const v = n%100;
+    return n + (s[(v-20)%10] || s[v] || s[0]);
+  }
+
+  // ---------- rendering ----------
+  function draw(){
+    const bg = game.mode.bg, fg = game.mode.fg;
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.strokeStyle = "rgba(0,0,0,0.08)";
+    ctx.lineWidth = 1;
+    for(let i=1;i<GRID;i++){
+      ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,canvas.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(canvas.width,i*CELL); ctx.stroke();
+    }
+
+    ctx.fillStyle = fg;
+    game.obstacles.forEach(o=>{
+      ctx.fillRect(o.x*CELL, o.y*CELL, CELL, CELL);
+    });
+
+    ctx.fillStyle = fg;
+    const fx = game.food.x*CELL + CELL/2, fy = game.food.y*CELL + CELL/2;
+    ctx.beginPath();
+    ctx.moveTo(fx, fy-4); ctx.lineTo(fx+4, fy); ctx.lineTo(fx, fy+4); ctx.lineTo(fx-4, fy);
+    ctx.closePath(); ctx.fill();
+
+    game.snake.forEach((s,i)=>{
+      ctx.fillStyle = fg;
+      ctx.fillRect(s.x*CELL+1, s.y*CELL+1, CELL-2, CELL-2);
+      if(i===0){
+        ctx.fillStyle = bg;
+        ctx.fillRect(s.x*CELL+3, s.y*CELL+3, CELL-6, CELL-6);
+        if(game.mouthOpen){
+          const cx = s.x*CELL+CELL/2, cy = s.y*CELL+CELL/2, r = CELL/2;
+          ctx.beginPath(); ctx.moveTo(cx,cy);
+          if(game.dir.x===1){ ctx.lineTo(cx+r,cy-r*0.55); ctx.lineTo(cx+r,cy+r*0.55); }
+          else if(game.dir.x===-1){ ctx.lineTo(cx-r,cy-r*0.55); ctx.lineTo(cx-r,cy+r*0.55); }
+          else if(game.dir.y===1){ ctx.lineTo(cx-r*0.55,cy+r); ctx.lineTo(cx+r*0.55,cy+r); }
+          else { ctx.lineTo(cx-r*0.55,cy-r); ctx.lineTo(cx+r*0.55,cy-r); }
+          ctx.closePath(); ctx.fill();
+        }
+      }
     });
   }
 
-  // ── Collapsible sections (only active when beta-on via CSS) ──
-  document.querySelectorAll('.collapsible .section-head').forEach(head => {
-    head.addEventListener('click', () => {
-      if (!document.body.classList.contains('beta-on')) return;
-      head.closest('.section').classList.toggle('collapsed');
-    });
+  // ---------- wiring ----------
+  document.getElementById("btn-play").addEventListener("click", enterMatchmaking);
+  document.getElementById("btn-rematch").addEventListener("click", enterMatchmaking);
+  document.getElementById("btn-mm-cancel").addEventListener("click", cancelMatchmaking);
+  document.getElementById("btn-ready").addEventListener("click", toggleReady);
+  document.getElementById("btn-lobby-leave").addEventListener("click", leaveLobby);
+  document.getElementById("btn-to-title").addEventListener("click", ()=>{
+    if(game && game.raf) cancelAnimationFrame(game.raf);
+    if(game && game.online) Net.send("leave", {});
+    showScreen("title");
+  });
+  document.getElementById("btn-howto").addEventListener("click", ()=>{
+    alert("Press PLAY to queue up, ready up in the lobby, and you'll drop into a 99-player match. Move with arrows or WASD, same as classic Snake. Each match randomly loads one of three classic cartridges — EX, EX2, or Xenzia — each with its own palette, field rules and bite animation. Eating food charges your attack meter. Press T to cycle who you're targeting, and SPACE to spend a full meter and eliminate them. When a real backend is connected, other real players show up in the rails tagged LIVE and your movement is validated server-side; without one, 98 simulated snakes fill the arena so it's always playable. Survive longest to win.");
   });
 
-  // ── Copy button logic ──
-  document.querySelectorAll('.copy-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const tag = btn.closest('.tag');
-      const text = Array.from(tag.childNodes)
-        .filter(n => n.nodeType === Node.TEXT_NODE)
-        .map(n => n.textContent)
-        .join('').trim();
-      navigator.clipboard.writeText(text).then(() => {
-        btn.textContent = '✓';
-        btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = '⧉'; btn.classList.remove('copied'); }, 1200);
-      }).catch(() => {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        btn.textContent = '✓';
-        btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = '⧉'; btn.classList.remove('copied'); }, 1200);
-      });
-    });
-  });
-
-  // ── Search ──
-  const searchInput = document.getElementById('search-input');
-  const searchCount = document.getElementById('search-count');
-
-  searchInput.addEventListener('input', () => {
-    const q = searchInput.value.trim().toLowerCase();
-    if (!q) {
-      document.querySelectorAll('.search-highlight').forEach(el => el.classList.remove('search-highlight'));
-      document.querySelectorAll('.search-hidden').forEach(el => el.classList.remove('search-hidden'));
-      document.querySelectorAll('.alpha-group').forEach(g => g.style.display = '');
-      searchCount.textContent = '';
-      return;
-    }
-
-    let total = 0;
-    document.querySelectorAll('.tag').forEach(el => {
-      const text = el.textContent.trim().toLowerCase();
-      if (text.includes(q)) { el.classList.add('search-highlight'); el.classList.remove('search-hidden'); total++; }
-      else { el.classList.remove('search-highlight'); el.classList.add('search-hidden'); }
-    });
-    document.querySelectorAll('.word-grid-plain .word').forEach(el => {
-      const text = el.textContent.trim().toLowerCase();
-      if (text.includes(q)) { el.classList.add('search-highlight'); el.classList.remove('search-hidden'); total++; }
-      else { el.classList.remove('search-highlight'); el.classList.add('search-hidden'); }
-    });
-    document.querySelectorAll('#alpha-grid .word').forEach(el => {
-      const text = el.textContent.trim().toLowerCase();
-      if (text.includes(q)) { el.classList.add('search-highlight'); el.classList.remove('search-hidden'); total++; }
-      else { el.classList.remove('search-highlight'); el.classList.add('search-hidden'); }
-    });
-    document.querySelectorAll('.alpha-group').forEach(g => {
-      const anyVisible = [...g.querySelectorAll('.word')].some(w => !w.classList.contains('search-hidden'));
-      g.style.display = anyVisible ? '' : 'none';
-    });
-    searchCount.textContent = total > 0 ? total + ' found' : 'none';
-  });
-
-  // ── Tag/word focus interactions ──
-  function attachWordEvents(els) {
-    els.forEach(el => {
-      if (el.dataset.eventsAttached) return;
-      el.dataset.eventsAttached = '1';
-      el.setAttribute('tabindex', '0');
-      el.addEventListener('mousedown', () => setTimeout(() => el.focus(), 0));
-      el.addEventListener('focus', () => {
-        const sel = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        sel.removeAllRanges();
-        sel.addRange(range);
-      });
-      el.addEventListener('blur', () => window.getSelection().removeAllRanges());
-    });
-  }
-  attachWordEvents(document.querySelectorAll('.word, .tag'));
+})();
 </script>
 </body>
 </html>
