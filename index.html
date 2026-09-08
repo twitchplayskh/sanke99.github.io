@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lifeline — Twitch Command Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0a0a0f;
+    color: #e0e0e0;
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .page {
+    width: 1400px;
+    margin: 0 auto;
+    padding: 40px 40px 60px;
+    background: #0a0a0f;
+  }
+
+  /* ── Beta Toggle Button ── */
+  #beta-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #0d1117;
+    border: 1px solid #1e2a3a;
+    border-radius: 8px;
+    padding: 8px 14px 8px 10px;
+    cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #37474f;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  #beta-toggle:hover {
+    border-color: #2a3a4a;
+    color: #546e7a;
+  }
+  #beta-toggle.active {
+    border-color: rgba(255, 193, 7, 0.4);
+    background: rgba(255, 193, 7, 0.05);
+    color: #ffca28;
+    box-shadow: 0 0 16px rgba(255, 193, 7, 0.1);
+  }
+  .beta-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #263238;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  #beta-toggle.active .beta-dot {
+    background: #ffca28;
+    box-shadow: 0 0 6px #ffca28;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 6px #ffca28; }
+    50% { box-shadow: 0 0 12px #ffca28, 0 0 20px rgba(255,193,7,0.4); }
+  }
+  .beta-label { line-height: 1; }
+
+  /* ── Beta notification toast ── */
+  #beta-toast {
+    position: fixed;
+    top: 60px;
+    right: 16px;
+    z-index: 9998;
+    background: rgba(255,193,7,0.08);
+    border: 1px solid rgba(255,193,7,0.25);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #ffe082;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+    max-width: 220px;
+    line-height: 1.5;
+  }
+  #beta-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    padding: 36px 0 28px;
+    border-bottom: 1px solid #1e2a4a;
+    margin-bottom: 36px;
+    position: relative;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 2px;
+    background: linear-gradient(90deg, transparent, #4fc3f7, transparent);
+  }
+  .logo-line {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 8px;
+    color: #4fc3f7;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .title {
+    font-family: 'Orbitron', monospace;
+    font-size: 52px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 4px;
+    line-height: 1;
+    text-shadow: 0 0 40px rgba(79,195,247,0.3);
+  }
+  .title span { color: #4fc3f7; }
+  .subtitle {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    color: #607d8b;
+    letter-spacing: 3px;
+    margin-top: 10px;
+    text-transform: uppercase;
+  }
+  .ps2-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    background: rgba(79,195,247,0.07);
+    border: 1px solid rgba(79,195,247,0.2);
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 14px;
+    color: #90caf9;
+    letter-spacing: 1px;
+  }
+  .circle-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    border: 2px solid #ef5350;
+    border-radius: 50%;
+    font-size: 12px; color: #ef5350;
+    font-weight: 700; flex-shrink: 0;
+  }
+
+  /* ── BETA: Search bar ── */
+  #search-bar-wrap {
+    display: none;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  body.beta-on #search-bar-wrap { display: block; }
+  #search-input {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 8px;
+    padding: 12px 16px 12px 44px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #e0e0e0;
+    outline: none;
+    letter-spacing: 0.5px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  #search-input::placeholder { color: #37474f; }
+  #search-input:focus {
+    border-color: rgba(255,193,7,0.4);
+    box-shadow: 0 0 12px rgba(255,193,7,0.08);
+  }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #37474f;
+    font-size: 16px;
+    pointer-events: none;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  #search-count {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #546e7a;
+  }
+  .search-highlight {
+    background: rgba(255,193,7,0.25) !important;
+    border-color: rgba(255,193,7,0.5) !important;
+    color: #fff !important;
+  }
+  .search-hidden { display: none !important; }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .grid-wide { grid-template-columns: 1fr 1fr; }
+  .grid-full { grid-template-columns: 1fr; }
+
+  /* ── Section ── */
+  .section {
+    background: #0d1117;
+    border: 1px solid #1e2a3a;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-bottom: 1px solid #1e2a3a;
+  }
+  .section-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .section-count {
+    margin-left: auto;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #37474f;
+    letter-spacing: 1px;
+  }
+  .section-body { padding: 14px 18px 16px; }
+
+  /* Colour themes */
+  .c-blue  .section-head { background: rgba(33,150,243,0.06); }
+  .c-blue  .section-icon { background: rgba(33,150,243,0.15); color: #42a5f5; }
+  .c-blue  .section-title { color: #42a5f5; }
+
+  .c-teal  .section-head { background: rgba(0,188,212,0.06); }
+  .c-teal  .section-icon { background: rgba(0,188,212,0.15); color: #26c6da; }
+  .c-teal  .section-title { color: #26c6da; }
+
+  .c-green .section-head { background: rgba(76,175,80,0.06); }
+  .c-green .section-icon { background: rgba(76,175,80,0.15); color: #66bb6a; }
+  .c-green .section-title { color: #66bb6a; }
+
+  .c-amber .section-head { background: rgba(255,193,7,0.06); }
+  .c-amber .section-icon { background: rgba(255,193,7,0.15); color: #ffca28; }
+  .c-amber .section-title { color: #ffca28; }
+
+  .c-red   .section-head { background: rgba(244,67,54,0.06); }
+  .c-red   .section-icon { background: rgba(244,67,54,0.15); color: #ef5350; }
+  .c-red   .section-title { color: #ef5350; }
+
+  .c-purple .section-head { background: rgba(156,39,176,0.06); }
+  .c-purple .section-icon { background: rgba(156,39,176,0.15); color: #ab47bc; }
+  .c-purple .section-title { color: #ab47bc; }
+
+  .c-coral .section-head { background: rgba(255,112,67,0.06); }
+  .c-coral .section-icon { background: rgba(255,112,67,0.15); color: #ff7043; }
+  .c-coral .section-title { color: #ff7043; }
+
+  /* ── Pill tags ── */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    cursor: text;
+    user-select: text;
+    transition: font-size 0.15s ease, padding 0.15s ease, filter 0.15s ease;
+    position: relative;
+  }
+  .tag:focus {
+    outline: none;
+    font-size: 16px;
+    padding: 5px 14px;
+    filter: brightness(1.35);
+  }
+  .tag-blue   { background: rgba(33,150,243,0.1);  color: #90caf9; border-color: rgba(33,150,243,0.2); }
+  .tag-teal   { background: rgba(0,188,212,0.1);   color: #80deea; border-color: rgba(0,188,212,0.2); }
+  .tag-green  { background: rgba(76,175,80,0.1);   color: #a5d6a7; border-color: rgba(76,175,80,0.2); }
+  .tag-amber  { background: rgba(255,193,7,0.1);   color: #ffe082; border-color: rgba(255,193,7,0.2); }
+  .tag-red    { background: rgba(244,67,54,0.1);   color: #ef9a9a; border-color: rgba(244,67,54,0.2); }
+  .tag-purple { background: rgba(156,39,176,0.1);  color: #ce93d8; border-color: rgba(156,39,176,0.2); }
+  .tag-coral  { background: rgba(255,112,67,0.1);  color: #ffab91; border-color: rgba(255,112,67,0.2); }
+
+  /* ── BETA: Copy button on tags ── */
+  .copy-btn {
+    display: none;
+    position: absolute;
+    right: -2px;
+    top: -2px;
+    width: 16px; height: 16px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: rgba(255,255,255,0.7);
+    transition: background 0.15s;
+    padding: 0;
+    font-family: monospace;
+    line-height: 1;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.28); color: #fff; }
+  .copy-btn.copied { background: rgba(76,175,80,0.5); color: #a5d6a7; }
+  body.beta-on .tag { position: relative; }
+  body.beta-on .tag:hover .copy-btn,
+  body.beta-on .tag:focus .copy-btn { display: flex; }
+
+  /* ── Two-column pill list ── */
+  .col2 { columns: 2; column-gap: 10px; }
+  .col3 { columns: 3; column-gap: 10px; }
+  .col2 .tag, .col3 .tag {
+    display: block;
+    break-inside: avoid;
+    margin-bottom: 5px;
+  }
+
+  /* ── Words grid (tiny pills) ── */
+  .word-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  /* ── BETA: Alpha-grouped word grid ── */
+  .word-grid-alpha { display: none; }
+  body.beta-on .word-grid-alpha { display: block; }
+  body.beta-on .word-grid-plain { display: none; }
+  .alpha-group { margin-bottom: 12px; }
+  .alpha-group:last-child { margin-bottom: 0; }
+  .alpha-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #263238;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+  .alpha-group .word-grid { gap: 4px; }
+
+  .word {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #78909c;
+    white-space: nowrap;
+    cursor: text;
+    user-select: text;
+    transition: font-size 0.15s ease, padding 0.15s ease, color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .word:focus {
+    outline: none;
+    font-size: 15px;
+    padding: 4px 12px;
+    color: #cfd8dc;
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  /* ── How to use ── */
+  .howto {
+    background: rgba(79,195,247,0.04);
+    border: 1px solid rgba(79,195,247,0.15);
+    border-radius: 10px;
+    padding: 20px 28px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .step { display: flex; align-items: flex-start; gap: 12px; }
+  .step-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    color: rgba(79,195,247,0.3);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 30px;
+  }
+  .step-text { font-size: 14px; color: #90a4ae; line-height: 1.5; }
+  .step-text strong { color: #e0e0e0; font-weight: 600; display: block; margin-bottom: 2px; }
+
+  /* ── BETA: Collapsible sections ── */
+  .section-head { cursor: default; }
+  body.beta-on .collapsible .section-head { cursor: pointer; user-select: none; }
+  body.beta-on .collapsible .section-head:hover { background: rgba(255,255,255,0.02); }
+  .collapse-arrow {
+    display: none;
+    margin-left: 8px;
+    font-size: 10px;
+    color: #37474f;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  body.beta-on .collapsible .collapse-arrow { display: block; }
+  body.beta-on .collapsible.collapsed .collapse-arrow { transform: rotate(-90deg); }
+  body.beta-on .collapsible.collapsed .section-body { display: none; }
+
+  /* ── BETA: Sticky section headers ── */
+  body.beta-on .sticky-head .section-head {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #0d1117;
+    border-bottom: 1px solid #1e2a3a;
+  }
+  body.beta-on .c-blue.sticky-head  .section-head { background: #0b0f17; }
+  body.beta-on .c-teal.sticky-head  .section-head { background: #0b0f17; }
+  body.beta-on .c-green.sticky-head .section-head { background: #0b0f17; }
+  body.beta-on .c-amber.sticky-head .section-head { background: #0b0f17; }
+  body.beta-on .c-teal.sticky-head  .section-head { background: #0b0f17; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid #1e2a3a;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #263238;
+    letter-spacing: 2px;
+  }
+
+  /* ══════════════════════════════════
+     BETA v3 — NEW FEATURE STYLES
+  ══════════════════════════════════ */
+
+  /* 1 ── Changelog tab */
+  #changelog-tab {
+    display: none;
+    position: fixed;
+    top: 96px;
+    right: 16px;
+    z-index: 9997;
+    width: 340px;
+    background: #0d1117;
+    border: 1px solid rgba(255,193,7,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    animation: slideIn 0.2s ease;
+  }
+  @keyframes slideIn {
+    from { opacity:0; transform: translateY(-8px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  body.beta-on #changelog-tab.open { display: block; }
+  #changelog-tab .cl-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,193,7,0.15);
+    background: rgba(255,193,7,0.05);
+  }
+  #changelog-tab .cl-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #ffca28;
+  }
+  #changelog-tab .cl-close {
+    background: none;
+    border: none;
+    color: #546e7a;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color 0.15s;
+  }
+  #changelog-tab .cl-close:hover { color: #ffca28; }
+  #changelog-tab .cl-body {
+    padding: 14px;
+    max-height: 420px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1e2a3a transparent;
+  }
+  .cl-version {
+    margin-bottom: 16px;
+  }
+  .cl-version:last-child { margin-bottom: 0; }
+  .cl-ver-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .cl-ver-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: rgba(255,193,7,0.15);
+    color: #ffca28;
+    border: 1px solid rgba(255,193,7,0.3);
+  }
+  .cl-ver-badge.prev {
+    background: rgba(79,195,247,0.1);
+    color: #4fc3f7;
+    border-color: rgba(79,195,247,0.25);
+  }
+  .cl-ver-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: #37474f;
+  }
+  .cl-items { list-style: none; padding: 0; margin: 0; }
+  .cl-items li {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #78909c;
+    padding: 3px 0 3px 14px;
+    position: relative;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .cl-items li:last-child { border-bottom: none; }
+  .cl-items li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: rgba(255,193,7,0.4);
+    font-size: 9px;
+    top: 4px;
+  }
+  .cl-items li.new-feat::before { color: rgba(76,175,80,0.6); }
+  .cl-items li span { color: #ffe082; }
+
+  /* Changelog open button */
+  #changelog-btn {
+    display: none;
+    position: fixed;
+    top: 56px;
+    right: 16px;
+    z-index: 9999;
+    background: #0d1117;
+    border: 1px solid #1e2a3a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #37474f;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  body.beta-on #changelog-btn { display: flex; align-items: center; gap: 6px; }
+  #changelog-btn:hover { border-color: rgba(255,193,7,0.3); color: #ffca28; }
+  #changelog-btn.open { border-color: rgba(255,193,7,0.4); color: #ffca28; background: rgba(255,193,7,0.05); }
+
+  /* 2 ── Font size slider */
+  #font-ctrl {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 16px;
+    z-index: 9999;
+    background: #0d1117;
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: #546e7a;
+    letter-spacing: 1px;
+  }
+  body.beta-on #font-ctrl { display: flex; }
+  #font-ctrl label { white-space: nowrap; }
+  #font-size-slider {
+    width: 80px;
+    accent-color: #ffca28;
+    cursor: pointer;
+  }
+  #font-size-val { color: #ffca28; min-width: 24px; text-align: right; }
+
+  /* 3 ── Highlight mode (random pastel glow on words) */
+  body.beta-highlight .word:not(.search-hidden) {
+    transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+  }
+
+  /* 4 ── Bookmark pinned tags */
+  .tag.bookmarked {
+    box-shadow: 0 0 0 1.5px rgba(255,193,7,0.6) !important;
+  }
+  body.beta-on .tag { cursor: pointer; }
+  #bookmarks-panel {
+    display: none;
+    position: fixed;
+    bottom: 60px;
+    right: 16px;
+    z-index: 9998;
+    background: #0d1117;
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    max-width: 280px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  body.beta-on #bookmarks-panel.has-items { display: block; }
+  #bookmarks-panel .bm-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #ffca28;
+    margin-bottom: 8px;
+  }
+  #bookmarks-panel .bm-list { display: flex; flex-wrap: wrap; gap: 4px; }
+  #bookmarks-panel .bm-item {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #ffe082;
+    background: rgba(255,193,7,0.08);
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 3px;
+    padding: 2px 7px;
+    cursor: pointer;
+  }
+  #bookmarks-panel .bm-item:hover { background: rgba(255,193,7,0.15); }
+
+  /* 5 ── Stats panel */
+  #stats-panel {
+    display: none;
+    background: rgba(79,195,247,0.04);
+    border: 1px solid rgba(79,195,247,0.15);
+    border-radius: 10px;
+    padding: 16px 24px;
+    margin-bottom: 20px;
+    grid-template-columns: repeat(6,1fr);
+    gap: 12px;
+  }
+  body.beta-on #stats-panel { display: grid; }
+  .stat-cell { text-align: center; }
+  .stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 900;
+    color: #4fc3f7;
+    line-height: 1;
+  }
+  .stat-lbl {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: #37474f;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* 6 ── Section progress bar (shows completeness via colour) */
+  .section-progress {
+    display: none;
+    height: 2px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+  }
+  body.beta-on .section-progress { display: block; }
+  .section-progress-fill {
+    height: 100%;
+    border-radius: 0 0 10px 10px;
+    transition: width 0.5s ease;
+  }
+
+  /* 7 ── Keyboard shortcut tooltip */
+  .kb-tip {
+    display: none;
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    border: 1px solid #1e2a3a;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #78909c;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    z-index: 9990;
+    white-space: nowrap;
+  }
+  body.beta-on .kb-tip.show { display: block; }
+  .kb-tip kbd {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: #e0e0e0;
+    font-size: 10px;
+  }
+
+  /* 8 ── Section jump nav */
+  #jump-nav {
+    display: none;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+  }
+  body.beta-on #jump-nav { display: flex; }
+  .jump-btn {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    color: #546e7a;
+    transition: all 0.15s ease;
+    text-decoration: none;
+  }
+  .jump-btn:hover { background: rgba(255,255,255,0.07); color: #e0e0e0; border-color: rgba(255,255,255,0.15); }
+
+  /* 9 ── Compact density toggle */
+  body.beta-compact .tag {
+    font-size: 10px !important;
+    padding: 2px 7px !important;
+  }
+  body.beta-compact .word {
+    font-size: 10px !important;
+    padding: 1px 5px !important;
+  }
+  body.beta-compact .section-body { padding: 8px 14px 10px !important; }
+
+  #density-btn {
+    display: none;
+  }
+  body.beta-on #density-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0d1117;
+    border: 1px solid #1e2a3a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #37474f;
+    transition: all 0.2s ease;
+    position: fixed;
+    bottom: 20px;
+    left: 16px;
+    z-index: 9999;
+  }
+  body.beta-on #density-btn:hover { border-color: rgba(79,195,247,0.3); color: #4fc3f7; }
+  body.beta-on #density-btn.active { border-color: rgba(79,195,247,0.4); color: #4fc3f7; background: rgba(79,195,247,0.05); }
+
+  /* 10 ── Random command button */
+  #random-btn {
+    display: none;
+  }
+  body.beta-on #random-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0d1117;
+    border: 1px solid #1e2a3a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #37474f;
+    transition: all 0.2s ease;
+    position: fixed;
+    bottom: 20px;
+    left: 130px;
+    z-index: 9999;
+  }
+  body.beta-on #random-btn:hover { border-color: rgba(156,39,176,0.4); color: #ab47bc; }
+  .random-spotlight {
+    animation: spotlight 1.2s ease forwards;
+  }
+  @keyframes spotlight {
+    0%   { box-shadow: 0 0 0 0 rgba(156,39,176,0.8); transform: scale(1); }
+    30%  { box-shadow: 0 0 0 6px rgba(156,39,176,0.3); transform: scale(1.06); }
+    100% { box-shadow: 0 0 0 0 rgba(156,39,176,0); transform: scale(1); }
+  }
+
+  /* 11 ── Export modal */
+  #export-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0,0,0,0.7);
+    align-items: center;
+    justify-content: center;
+  }
+  body.beta-on #export-modal.open { display: flex; }
+  #export-modal .em-box {
+    background: #0d1117;
+    border: 1px solid rgba(255,193,7,0.25);
+    border-radius: 12px;
+    padding: 24px 28px;
+    width: 420px;
+    max-width: 90vw;
+  }
+  #export-modal .em-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #ffca28;
+    margin-bottom: 16px;
+  }
+  #export-modal textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #90a4ae;
+    resize: none;
+    height: 200px;
+    outline: none;
+    letter-spacing: 0.3px;
+    line-height: 1.6;
+  }
+  .em-actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+  .em-btn {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.15s ease;
+  }
+  .em-btn-primary { background: rgba(255,193,7,0.1); border-color: rgba(255,193,7,0.3); color: #ffca28; }
+  .em-btn-primary:hover { background: rgba(255,193,7,0.18); }
+  .em-btn-close { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: #546e7a; }
+  .em-btn-close:hover { color: #90a4ae; }
+
+  /* Export trigger button */
+  #export-btn {
+    display: none;
+  }
+  body.beta-on #export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0d1117;
+    border: 1px solid #1e2a3a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #37474f;
+    transition: all 0.2s ease;
+    position: fixed;
+    bottom: 20px;
+    left: 252px;
+    z-index: 9999;
+  }
+  body.beta-on #export-btn:hover { border-color: rgba(76,175,80,0.4); color: #66bb6a; }
+
+  /* 12 ── Phrase builder */
+  #phrase-builder {
+    display: none;
+    background: rgba(255,193,7,0.03);
+    border: 1px solid rgba(255,193,7,0.15);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  body.beta-on #phrase-builder { display: flex; }
+  #phrase-builder .pb-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #546e7a;
+    flex-shrink: 0;
+  }
+  #phrase-output {
+    flex: 1;
+    min-width: 160px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,193,7,0.2);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #ffe082;
+    letter-spacing: 1px;
+    min-height: 34px;
+    cursor: text;
+    transition: border-color 0.2s;
+    word-break: break-word;
+  }
+  #phrase-output:focus { outline: none; border-color: rgba(255,193,7,0.45); }
+  #phrase-output:empty::before { content: 'click words below to build a command…'; color: #263238; font-size: 11px; }
+  .pb-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .pb-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .pb-copy { background: rgba(255,193,7,0.08); border-color: rgba(255,193,7,0.25); color: #ffca28; }
+  .pb-copy:hover { background: rgba(255,193,7,0.15); }
+  .pb-clear { background: rgba(244,67,54,0.07); border-color: rgba(244,67,54,0.2); color: #ef5350; }
+  .pb-clear:hover { background: rgba(244,67,54,0.14); }
+
+  /* Make words clickable in phrase builder mode */
+  body.beta-on .word { cursor: pointer; }
+  body.beta-on .word:hover {
+    background: rgba(255,193,7,0.1);
+    border-color: rgba(255,193,7,0.3);
+    color: #ffe082;
+  }
+
+  /* ── Howto block positioning in beta mode ── */
+  #howto-beta-wrap { display: none; }
+  body.beta-on #howto-beta-wrap { display: block; margin-bottom: 20px; }
+  body.beta-on #howto-block { margin-bottom: 0; }
+  /* In beta mode, move the howto into the wrap placeholder */
+
+  /* ── Mobile Responsive ── */
+  @media (max-width: 1440px) {
+    .page { width: 100%; }
+  }
+
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .grid-wide { grid-template-columns: 1fr; }
+    .howto { grid-template-columns: 1fr 1fr; gap: 16px; }
+  }
+
+  @media (max-width: 768px) {
+    .page { padding: 20px 16px 40px; }
+    .title { font-size: 36px; letter-spacing: 2px; }
+    .logo-line { font-size: 10px; letter-spacing: 5px; }
+    .subtitle { font-size: 13px; letter-spacing: 2px; }
+    .ps2-note { font-size: 12px; padding: 7px 14px; gap: 8px; text-align: center; }
+    .howto { grid-template-columns: 1fr 1fr; padding: 16px; gap: 14px; }
+    .step-num { font-size: 18px; }
+    .step-text { font-size: 13px; }
+    .grid, .grid-wide, .grid-full { grid-template-columns: 1fr; gap: 16px; }
+    div[style*="flex-direction:column"] { gap: 16px !important; }
+    .section-title { font-size: 10px; letter-spacing: 2px; }
+    .section-count { font-size: 10px; }
+    .tag { font-size: 11px; padding: 3px 8px; }
+    .col3 { columns: 2; }
+    .col2 { columns: 2; }
+    .word { font-size: 10px; padding: 2px 6px; }
+    .footer { font-size: 10px; letter-spacing: 1px; padding-top: 20px; }
+    #beta-toggle { font-size: 9px; padding: 6px 10px 6px 8px; }
+  }
+
+  @media (max-width: 480px) {
+    .page { padding: 14px 12px 32px; }
+    .title { font-size: 28px; }
+    .subtitle { font-size: 11px; letter-spacing: 1px; }
+    .ps2-note { flex-direction: column; gap: 6px; font-size: 11px; text-align: center; }
+    .circle-btn:last-child { display: none; }
+    .howto { grid-template-columns: 1fr; padding: 14px; gap: 12px; }
+    .col3, .col2 { columns: 1; }
+    .section-body { padding: 12px 14px 14px; }
+    .section-head { padding: 10px 14px; }
+    .tag { white-space: normal; word-break: break-word; }
+    .word { font-size: 10px; }
+    .footer { letter-spacing: 0px; line-height: 1.8; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Beta Toggle -->
+<button id="beta-toggle" title="Toggle beta features">
+  <div class="beta-dot"></div>
+  <span class="beta-label">BETA</span>
+</button>
+<div id="beta-toast">✦ Beta v3 enabled</div>
+
+<!-- Changelog button + panel -->
+<button id="changelog-btn" title="View changelog">📋 <span>LOG</span></button>
+<div id="changelog-tab">
+  <div class="cl-head">
+    <span class="cl-title">CHANGELOG</span>
+    <button class="cl-close" id="changelog-close">✕</button>
+  </div>
+  <div class="cl-body">
+    <div class="cl-version">
+      <div class="cl-ver-label">
+        <span class="cl-ver-badge">v4.0 — BETA</span>
+        <span class="cl-ver-date">Current build</span>
+      </div>
+      <ul class="cl-items">
+        <li class="new-feat">Removed <span>Stats number bar</span> — MOVEMENT / BATTLE / SPECIAL count bar removed from beta tab</li>
+        <li class="new-feat">Moved <span>How-to steps (1–4)</span> — now appears where the stats bar was when beta is active</li>
+        <li class="new-feat">Moved <span>LOG button</span> — repositioned below BETA button to prevent overlap</li>
+        <li class="new-feat">Removed <span>Bottom-left buttons</span> — COMPACT, RANDOM and EXPORT buttons removed</li>
+        <li class="new-feat">Fixed <span>Text scaling</span> — font size slider now correctly scales all command tags and vocabulary words</li>
+      </ul>
+    </div>
+    <div class="cl-version">
+      <div class="cl-ver-label">
+        <span class="cl-ver-badge prev">v3.0 — BETA</span>
+        <span class="cl-ver-date">Previous build</span>
+      </div>
+      <ul class="cl-items">
+        <li class="new-feat">Added <span>Changelog panel</span> — this panel, tracks all updates</li>
+        <li class="new-feat">Added <span>Font size slider</span> — scale all command text (bottom-right)</li>
+        <li class="new-feat">Added <span>Phrase Builder</span> — click words to chain a custom command</li>
+        <li class="new-feat">Added <span>Stats panel</span> — live command counts by category</li>
+        <li class="new-feat">Added <span>Section jump nav</span> — one-click scroll to any section</li>
+        <li class="new-feat">Added <span>Compact density mode</span> — tighter layout for dense screens</li>
+        <li class="new-feat">Added <span>Random command</span> — highlights a surprise command</li>
+        <li class="new-feat">Added <span>Export command list</span> — copy all commands as plain text</li>
+        <li class="new-feat">Added <span>Bookmark tags</span> — double-click any tag to pin it</li>
+        <li class="new-feat">Added <span>Keyboard shortcuts</span> — press / to search, Esc to clear</li>
+        <li class="new-feat">Added <span>Section progress bars</span> — density indicator per section</li>
+        <li class="new-feat">Added <span>Word click → phrase builder</span> — single click appends word</li>
+      </ul>
+    </div>
+    <div class="cl-version">
+      <div class="cl-ver-label">
+        <span class="cl-ver-badge prev">v2.0 — BETA</span>
+        <span class="cl-ver-date">Previous build</span>
+      </div>
+      <ul class="cl-items">
+        <li>Added <span>Search bar</span> — live filter across all commands, words and phrases</li>
+        <li>Added <span>Copy buttons</span> — hover ⧉ copies tag text to clipboard</li>
+        <li>Added <span>Collapsible sections</span> — click header to collapse/expand</li>
+        <li>Added <span>Alpha-grouped word grid</span> — 314 words sorted A–Z with letter dividers</li>
+        <li>Added <span>Sticky section headers</span> — headers lock to top on scroll</li>
+        <li>Added <span>Beta toggle button</span> — activates all beta features</li>
+        <li>Added <span>Toast notifications</span> — confirms beta on/off state</li>
+        <li>Added <span>Focus-to-zoom on tags</span> — focused tag enlarges for easier reading</li>
+        <li>Added <span>Search result counter</span> — shows "N found" or "none"</li>
+      </ul>
+    </div>
+    <div class="cl-version">
+      <div class="cl-ver-label">
+        <span class="cl-ver-badge prev">v1.0</span>
+        <span class="cl-ver-date">Original release</span>
+      </div>
+      <ul class="cl-items">
+        <li>Initial command reference page</li>
+        <li>Movement, Battle, Special, Scenario, Fun Phrases sections</li>
+        <li>Chat Button Commands section</li>
+        <li>314-word vocabulary reference grid</li>
+        <li>How-to-use steps panel</li>
+        <li>Responsive layout — mobile, tablet, desktop</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Export modal -->
+<div id="export-modal">
+  <div class="em-box">
+    <div class="em-title">EXPORT COMMANDS</div>
+    <textarea id="export-ta" readonly></textarea>
+    <div class="em-actions">
+      <button class="em-btn em-btn-primary" id="export-copy-btn">COPY ALL</button>
+      <button class="em-btn em-btn-close" id="export-close-btn">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Keyboard shortcut tip -->
+<div class="kb-tip" id="kb-tip">Press <kbd>/</kbd> to search &nbsp;·&nbsp; <kbd>Esc</kbd> to clear &nbsp;·&nbsp; <kbd>double-click</kbd> tag to bookmark</div>
+
+
+
+<!-- Font size control -->
+<div id="font-ctrl">
+  <label for="font-size-slider">TEXT</label>
+  <input type="range" id="font-size-slider" min="80" max="140" value="100" step="5">
+  <span id="font-size-val">100%</span>
+</div>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-line">Twitch plays</div>
+    <div class="title">LIFE<span>LINE</span></div>
+    <div class="subtitle">Voice Command Reference — Operator's Side</div>
+    <div style="display:flex;justify-content:center;margin-top:14px;">
+      <div class="ps2-note">
+        <div class="circle-btn">○</div>
+        Type any command in chat &nbsp;·&nbsp; The bot holds Circle and speaks it to Player
+        <div class="circle-btn">○</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BETA v3: How-to steps (moved to top area, replacing stats panel) -->
+  <div id="howto-beta-wrap"></div>
+
+  <!-- BETA v3: Section jump nav -->
+  <div id="jump-nav">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#263238;letter-spacing:1px;align-self:center;">JUMP:</span>
+    <a class="jump-btn" href="#sec-movement">MOVEMENT</a>
+    <a class="jump-btn" href="#sec-special">SPECIAL</a>
+    <a class="jump-btn" href="#sec-battle">BATTLE</a>
+    <a class="jump-btn" href="#sec-scenario">SCENARIO</a>
+    <a class="jump-btn" href="#sec-fun">FUN</a>
+    <a class="jump-btn" href="#sec-chat">CHAT BTNS</a>
+    <a class="jump-btn" href="#sec-words">ALL WORDS</a>
+  </div>
+
+  <!-- BETA v3: Phrase Builder -->
+  <div id="phrase-builder">
+    <span class="pb-label">BUILD:</span>
+    <div id="phrase-output" contenteditable="true" spellcheck="false"></div>
+    <div class="pb-actions">
+      <button class="pb-btn pb-copy" id="pb-copy-btn">COPY</button>
+      <button class="pb-btn pb-clear" id="pb-clear-btn">CLEAR</button>
+    </div>
+  </div>
+
+  <!-- BETA v3: Bookmarks panel -->
+  <div id="bookmarks-panel">
+    <div class="bm-title">★ BOOKMARKED</div>
+    <div class="bm-list"></div>
+  </div>
+
+  <!-- BETA: Search bar (hidden until beta on) -->
+  <div id="search-bar-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search-input" placeholder="Search commands, words, phrases…" autocomplete="off" spellcheck="false">
+    <span id="search-count"></span>
+  </div>
+
+  <!-- How to use -->
+  <div class="howto" id="howto-block">
+    <div class="step"><div class="step-num">01</div><div class="step-text"><strong>Type a command</strong>Type any word or full phrase from this list into chat</div></div>
+    <div class="step"><div class="step-num">02</div><div class="step-text"><strong>Bot detects it</strong>The bot recognises single words AND full scenario phrases</div></div>
+    <div class="step"><div class="step-num">03</div><div class="step-text"><strong>Circle held</strong>Automatically holds ○ for 0.5s then plays the audio</div></div>
+    <div class="step"><div class="step-num">04</div><div class="step-text"><strong>Player responds</strong>They hear the command and act — combine words for sentences</div></div>
+  </div>
+
+  <!-- Row 1: Movement + Battle + Special -->
+  <div class="grid" style="margin-bottom:20px;">
+
+    <div class="section c-blue collapsible sticky-head" id="sec-movement">
+      <div class="section-head">
+        <div class="section-icon">MV</div>
+        <div class="section-title">Movement &amp; Actions</div>
+        <div class="section-count">SINGLE WORDS</div>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="word-grid">
+          <span class="word">walk</span><span class="word">run</span><span class="word">stop</span><span class="word">go</span><span class="word">move</span><span class="word">follow</span><span class="word">come</span><span class="word">here</span><span class="word">back</span><span class="word">left</span><span class="word">right</span><span class="word">forward</span><span class="word">ahead</span><span class="word">behind</span><span class="word">north</span><span class="word">south</span><span class="word">east</span><span class="word">west</span><span class="word">up</span><span class="word">down</span><span class="word">wait</span><span class="word">stay</span><span class="word">return</span><span class="word">approach</span><span class="word">enter</span><span class="word">exit</span><span class="word">climb</span><span class="word">jump</span><span class="word">duck</span><span class="word">turn</span><span class="word">front</span><span class="word">flee</span><span class="word">dodge</span>
+        </div>
+        <div style="margin-top:12px;border-top:1px solid #1e2a3a;padding-top:10px;">
+          <div class="word-grid">
+            <span class="word">get</span><span class="word">take</span><span class="word">grab</span><span class="word">pick</span><span class="word">drop</span><span class="word">use</span><span class="word">open</span><span class="word">close</span><span class="word">push</span><span class="word">pull</span><span class="word">hit</span><span class="word">attack</span><span class="word">fight</span><span class="word">kick</span><span class="word">hide</span><span class="word">crouch</span><span class="word">stand</span><span class="word">look</span><span class="word">examine</span><span class="word">search</span><span class="word">check</span><span class="word">read</span><span class="word">give</span><span class="word">throw</span><span class="word">put</span><span class="word">place</span><span class="word">carry</span><span class="word">hold</span><span class="word">release</span><span class="word">eat</span><span class="word">drink</span><span class="word">heal</span><span class="word">rest</span><span class="word">shoot</span><span class="word">fire</span><span class="word">reload</span><span class="word">aim</span><span class="word">recover</span><span class="word">unlock</span><span class="word">break</span><span class="word">press</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section c-green collapsible" id="sec-special">
+      <div class="section-head">
+        <div class="section-icon">SP</div>
+        <div class="section-title">Special Commands</div>
+        <div class="section-count">FULL PHRASES</div>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="tags">
+          <span class="tag tag-green">microphone check<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">zoom in<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">low kick<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">category game<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">spin the gun<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">sexy pose<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">auto-fire<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">she sells<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">break time<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">i'll leave it to you<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">camera check<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">jumpback<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">strafe<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">taunt<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">go back<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-green">consultation<button class="copy-btn" title="Copy">⧉</button></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section c-amber collapsible" id="sec-battle">
+      <div class="section-head">
+        <div class="section-icon">BT</div>
+        <div class="section-title">Battle Commands</div>
+        <div class="section-count">SINGLE WORDS + PHRASES</div>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="tags" style="margin-bottom:10px;">
+          <span class="tag tag-amber">shoot<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-amber">reload<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-amber">flee<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-amber">approach<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-amber">recover<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-amber">dodge<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-amber">front<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-amber">back<button class="copy-btn" title="Copy">⧉</button></span>
+        </div>
+        <div style="border-top:1px solid #1e2a3a;padding-top:10px;">
+          <div class="tags">
+            <span class="tag tag-amber">number 1<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-amber">number 2<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-amber">number 3<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-amber">turn right<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-amber">turn left<button class="copy-btn" title="Copy">⧉</button></span>
+          </div>
+        </div>
+        <div style="border-top:1px solid #1e2a3a;padding-top:10px;margin-top:10px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#546e7a;letter-spacing:1px;margin-bottom:6px;">STACK UP TO 3 COMMANDS:</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#ffe082;background:rgba(255,193,7,0.06);padding:6px 10px;border-radius:4px;border:1px solid rgba(255,193,7,0.1);">
+            shoot shoot shoot &nbsp;·&nbsp; shoot flee recover
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Row 2: Scenario questions (wide) + Fun -->
+  <div class="grid grid-wide" style="margin-bottom:20px;">
+
+    <div class="section c-teal collapsible sticky-head" id="sec-scenario">
+      <div class="section-head">
+        <div class="section-icon">SC</div>
+        <div class="section-title">Scenario Questions — say the full phrase</div>
+        <div class="section-count">62 PHRASES</div>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="col3 tags">
+          <span class="tag tag-teal">what should we do<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">where am i<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">who's player<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what is jsl<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what are you looking for<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what was that monster<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">who is helen johnson<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">why are you so cranky<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">i wonder if player's alive<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what is the manager like<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what do you think of the pm<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">do you have any friends<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what's the relationship with gino<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">is a rescue team coming<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">how are things on earth<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">player isn't around<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what are they researching here<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what do you think of allen<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">where is the announcer<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">tell me about yourself<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">tell me what you're looking for<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">powers and alien<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what do you think of powers<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">how far away are you<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">player wasn't there<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">about this hotel's structure<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">humanoid alien<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">i wonder if the pm and his people are ok<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what do you think of that captain<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">that alien earlier<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">you've got great reflexes<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">i wonder if player is safe<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">you're looking for a green orb<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">i wonder if the manager is ok<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">where is gino<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">the announcer was dead<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">that man in the restaurant<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">when we get to earth<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">how was earth<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">is this hotel ok<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">why did tanaka turn into a monster<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">the poor manager<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what happened to powers<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">i wonder if gino is ok<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what is paracelsus<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">the remnants of paracelsus<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">the power of words<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">are you close to me now<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">is it zero gravity<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what's a philosopher's stone<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">the first lady was attacked by an alien<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">that allen<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what happened to gino<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what was that group<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">where is player<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">the monsters were made here<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">allen was conducting research here<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">you're strong<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">it's about player<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">what's a fake stone<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">powers is joseph<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">remnants of jsl<button class="copy-btn" title="Copy">⧉</button></span>
+          <span class="tag tag-teal">why were you in the detaining cell<button class="copy-btn" title="Copy">⧉</button></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <div class="section c-purple collapsible" id="sec-fun">
+        <div class="section-head">
+          <div class="section-icon">FN</div>
+          <div class="section-title">Fun Phrases</div>
+          <div class="section-count">EASTER EGGS</div>
+          <span class="collapse-arrow">▼</span>
+        </div>
+        <div class="section-body">
+          <div class="tags col2">
+            <span class="tag tag-purple">i love you<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">i hate you<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">i'm sorry<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">are you a girl<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">bark like a dog<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">what's your sign<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">sit down<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">this game sucks<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">kill yourself<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">suicide<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">fuck you<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">take off your clothes<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-purple">will you have sex with me<button class="copy-btn" title="Copy">⧉</button></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section c-coral collapsible" id="sec-chat">
+        <div class="section-head">
+          <div class="section-icon">CH</div>
+          <div class="section-title">Chat Button Commands</div>
+          <div class="section-count">NO CIRCLE HOLD</div>
+          <span class="collapse-arrow">▼</span>
+        </div>
+        <div class="section-body">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#546e7a;letter-spacing:1px;margin-bottom:8px;">CONFIGURE TRIGGER WORDS IN THE APP SETTINGS</div>
+          <div class="tags">
+            <span class="tag tag-coral">confirm → Square □<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-coral">cancel → Cross ×<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-coral">analysis → Triangle △<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-coral">map → L1<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-coral">items → R1<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-coral">skip → L2<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-coral">pause → Start<button class="copy-btn" title="Copy">⧉</button></span>
+            <span class="tag tag-coral">select → Select<button class="copy-btn" title="Copy">⧉</button></span>
+          </div>
+          <div style="margin-top:10px;font-size:12px;color:#546e7a;">Trigger words are customisable in the Settings tab</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Row 3: Word reference -->
+  <div class="section collapsible sticky-head" id="sec-words" style="border-color:#1e2a3a;margin-bottom:24px;">
+    <div class="section-head" style="background:rgba(255,255,255,0.02);">
+      <div class="section-icon" style="background:rgba(255,255,255,0.05);color:#546e7a;font-size:11px;">WD</div>
+      <div class="section-title" style="color:#546e7a;">All recognised single words — any of these alone or combined will trigger a voice command</div>
+      <div class="section-count">314 WORDS</div>
+      <span class="collapse-arrow">▼</span>
+    </div>
+    <div class="section-body">
+      <!-- Plain word grid (shown by default) -->
+      <div class="word-grid word-grid-plain">
+        <span class="word">a</span><span class="word">about</span><span class="word">ahead</span><span class="word">aid</span><span class="word">aim</span><span class="word">alien</span><span class="word">alive</span><span class="word">allen</span><span class="word">am</span><span class="word">ammo</span><span class="word">an</span><span class="word">and</span><span class="word">announcer</span><span class="word">answer</span><span class="word">any</span><span class="word">approach</span><span class="word">are</span><span class="word">around</span><span class="word">attack</span><span class="word">attacked</span><span class="word">auto</span><span class="word">away</span><span class="word">back</span><span class="word">backpack</span><span class="word">bag</span><span class="word">bandage</span><span class="word">bark</span><span class="word">bat</span><span class="word">behind</span><span class="word">bottle</span><span class="word">box</span><span class="word">break</span><span class="word">button</span><span class="word">by</span><span class="word">cabinet</span><span class="word">call</span><span class="word">camera</span><span class="word">can</span><span class="word">cancel</span><span class="word">captain</span><span class="word">careful</span><span class="word">carry</span><span class="word">category</span><span class="word">cell</span><span class="word">check</span><span class="word">chest</span><span class="word">climb</span><span class="word">close</span><span class="word">clothes</span><span class="word">come</span><span class="word">coming</span><span class="word">computer</span><span class="word">conducting</span><span class="word">corner</span><span class="word">cranky</span><span class="word">crouch</span><span class="word">dead</span><span class="word">detaining</span><span class="word">destroy</span><span class="word">did</span><span class="word">do</span><span class="word">dodge</span><span class="word">dog</span><span class="word">door</span><span class="word">drawer</span><span class="word">drink</span><span class="word">drop</span><span class="word">duck</span><span class="word">earlier</span><span class="word">earth</span><span class="word">east</span><span class="word">eat</span><span class="word">end</span><span class="word">enter</span><span class="word">examine</span><span class="word">exit</span><span class="word">fake</span><span class="word">far</span><span class="word">fight</span><span class="word">fire</span><span class="word">first</span><span class="word">flee</span><span class="word">flip</span><span class="word">floor</span><span class="word">follow</span><span class="word">food</span><span class="word">for</span><span class="word">forward</span><span class="word">friends</span><span class="word">from</span><span class="word">front</span><span class="word">fuck</span><span class="word">game</span><span class="word">get</span><span class="word">gino</span><span class="word">girl</span><span class="word">give</span><span class="word">go</span><span class="word">got</span><span class="word">grab</span><span class="word">gravity</span><span class="word">great</span><span class="word">green</span><span class="word">group</span><span class="word">gun</span><span class="word">hall</span><span class="word">hallway</span><span class="word">happened</span><span class="word">hate</span><span class="word">have</span><span class="word">heal</span><span class="word">health</span><span class="word">helen</span><span class="word">help</span><span class="word">here</span><span class="word">hide</span><span class="word">his</span><span class="word">hit</span><span class="word">hold</span><span class="word">hotel</span><span class="word">how</span><span class="word">humanoid</span><span class="word">hurry</span><span class="word">i</span><span class="word">if</span><span class="word">in</span><span class="word">into</span><span class="word">inventory</span><span class="word">is</span><span class="word">it</span><span class="word">item</span><span class="word">johnson</span><span class="word">joseph</span><span class="word">jsl</span><span class="word">jump</span><span class="word">key</span><span class="word">kick</span><span class="word">kill</span><span class="word">knife</span><span class="word">ladder</span><span class="word">lady</span><span class="word">leave</span><span class="word">left</span><span class="word">light</span><span class="word">like</span><span class="word">lock</span><span class="word">look</span><span class="word">looking</span><span class="word">love</span><span class="word">low</span><span class="word">machine</span><span class="word">made</span><span class="word">man</span><span class="word">manager</span><span class="word">map</span><span class="word">me</span><span class="word">medicine</span><span class="word">microphone</span><span class="word">monster</span><span class="word">monsters</span><span class="word">move</span><span class="word">player</span><span class="word">next</span><span class="word">no</span><span class="word">north</span><span class="word">now</span><span class="word">number</span><span class="word">of</span><span class="word">off</span><span class="word">ok</span><span class="word">okay</span><span class="word">on</span><span class="word">onto</span><span class="word">open</span><span class="word">orb</span><span class="word">over</span><span class="word">panel</span><span class="word">paracelsus</span><span class="word">people</span><span class="word">phone</span><span class="word">pick</span><span class="word">place</span><span class="word">please</span><span class="word">pm</span><span class="word">poor</span><span class="word">pose</span><span class="word">power</span><span class="word">powers</span><span class="word">press</span><span class="word">pull</span><span class="word">push</span><span class="word">put</span><span class="word">radio</span><span class="word">read</span><span class="word">recover</span><span class="word">reflexes</span><span class="word">relationship</span><span class="word">release</span><span class="word">reload</span><span class="word">remnants</span><span class="word">repeat</span><span class="word">rescue</span><span class="word">research</span><span class="word">researching</span><span class="word">rest</span><span class="word">restaurant</span><span class="word">return</span><span class="word">right</span><span class="word">room</span><span class="word">run</span><span class="word">safe</span><span class="word">save</span><span class="word">say</span><span class="word">search</span><span class="word">sells</span><span class="word">sex</span><span class="word">sexy</span><span class="word">she</span><span class="word">shelf</span><span class="word">shoot</span><span class="word">should</span><span class="word">side</span><span class="word">sign</span><span class="word">sit</span><span class="word">skip</span><span class="word">sleep</span><span class="word">so</span><span class="word">sorry</span><span class="word">south</span><span class="word">speak</span><span class="word">spin</span><span class="word">stairs</span><span class="word">stand</span><span class="word">status</span><span class="word">stay</span><span class="word">stick</span><span class="word">stop</span><span class="word">stone</span><span class="word">strong</span><span class="word">structure</span><span class="word">sucks</span><span class="word">switch</span><span class="word">table</span><span class="word">take</span><span class="word">talk</span><span class="word">tanaka</span><span class="word">team</span><span class="word">tell</span><span class="word">thanks</span><span class="word">that</span><span class="word">the</span><span class="word">then</span><span class="word">there</span><span class="word">they</span><span class="word">things</span><span class="word">think</span><span class="word">this</span><span class="word">through</span><span class="word">throw</span><span class="word">time</span><span class="word">to</span><span class="word">toward</span><span class="word">towards</span><span class="word">turn</span><span class="word">under</span><span class="word">unlock</span><span class="word">up</span><span class="word">use</span><span class="word">wait</span><span class="word">wake</span><span class="word">walk</span><span class="word">wall</span><span class="word">was</span><span class="word">water</span><span class="word">weapon</span><span class="word">we</span><span class="word">were</span><span class="word">west</span><span class="word">what</span><span class="word">when</span><span class="word">where</span><span class="word">who</span><span class="word">why</span><span class="word">will</span><span class="word">window</span><span class="word">with</span><span class="word">without</span><span class="word">wonder</span><span class="word">words</span><span class="word">yes</span><span class="word">you</span><span class="word">your</span><span class="word">yourself</span><span class="word">zero</span><span class="word">zoom</span>
+      </div>
+      <!-- Beta: Alpha-grouped word grid (hidden until beta on) -->
+      <div class="word-grid-alpha" id="alpha-grid"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    LIFELINE: OPERATOR'S SIDE &nbsp;·&nbsp; KONAMI 2003 &nbsp;·&nbsp; TWITCH VOICE CONTROLLER &nbsp;·&nbsp; CIRCLE ○ HELD AUTOMATICALLY FOR ALL COMMANDS
+  </div>
+
+</div>
+
+<script>
+  // ── All words for alpha grid ──
+  const ALL_WORDS = ["a","about","ahead","aid","aim","alien","alive","allen","am","ammo","an","and","announcer","answer","any","approach","are","around","attack","attacked","auto","away","back","backpack","bag","bandage","bark","bat","behind","bottle","box","break","button","by","cabinet","call","camera","can","cancel","captain","careful","carry","category","cell","check","chest","climb","close","clothes","come","coming","computer","conducting","corner","cranky","crouch","dead","detaining","destroy","did","do","dodge","dog","door","drawer","drink","drop","duck","earlier","earth","east","eat","end","enter","examine","exit","fake","far","fight","fire","first","flee","flip","floor","follow","food","for","forward","friends","from","front","fuck","game","get","gino","girl","give","go","got","grab","gravity","great","green","group","gun","hall","hallway","happened","hate","have","heal","health","helen","help","here","hide","his","hit","hold","hotel","how","humanoid","hurry","i","if","in","into","inventory","is","it","item","johnson","joseph","jsl","jump","key","kick","kill","knife","ladder","lady","leave","left","light","like","lock","look","looking","love","low","machine","made","man","manager","map","me","medicine","microphone","monster","monsters","move","player","next","no","north","now","number","of","off","ok","okay","on","onto","open","orb","over","panel","paracelsus","people","phone","pick","place","please","pm","poor","pose","power","powers","press","pull","push","put","radio","read","recover","reflexes","relationship","release","reload","remnants","repeat","rescue","research","researching","rest","restaurant","return","right","room","run","safe","save","say","search","sells","sex","sexy","she","shelf","shoot","should","side","sign","sit","skip","sleep","so","sorry","south","speak","spin","stairs","stand","status","stay","stick","stop","stone","strong","structure","sucks","switch","table","take","talk","tanaka","team","tell","thanks","that","the","then","there","they","things","think","this","through","throw","time","to","toward","towards","turn","under","unlock","up","use","wait","wake","walk","wall","was","water","weapon","we","were","west","what","when","where","who","why","will","window","with","without","wonder","words","yes","you","your","yourself","zero","zoom"];
+
+  // Build alpha grid
+  function buildAlphaGrid() {
+    const container = document.getElementById('alpha-grid');
+    if (container.children.length > 0) return;
+    const groups = {};
+    ALL_WORDS.forEach(w => {
+      const letter = w[0].toUpperCase();
+      if (!groups[letter]) groups[letter] = [];
+      groups[letter].push(w);
+    });
+    Object.keys(groups).sort().forEach(letter => {
+      const group = document.createElement('div');
+      group.className = 'alpha-group';
+      const label = document.createElement('div');
+      label.className = 'alpha-label';
+      label.textContent = '— ' + letter + ' —';
+      const grid = document.createElement('div');
+      grid.className = 'word-grid';
+      groups[letter].forEach(w => {
+        const span = document.createElement('span');
+        span.className = 'word';
+        span.textContent = w;
+        span.setAttribute('tabindex', '0');
+        grid.appendChild(span);
+      });
+      group.appendChild(label);
+      group.appendChild(grid);
+      container.appendChild(group);
+    });
+    // attach phrase-builder click to new alpha words
+    attachWordEvents(container.querySelectorAll('.word'));
+    attachPhraseClick(container.querySelectorAll('.word'));
+  }
+
+  // ── Beta toggle ──
+  const betaBtn = document.getElementById('beta-toggle');
+  const betaToast = document.getElementById('beta-toast');
+  let toastTimer;
+
+  betaBtn.addEventListener('click', () => {
+    const isOn = document.body.classList.toggle('beta-on');
+    betaBtn.classList.toggle('active', isOn);
+
+    // Move howto block above/below the nav depending on beta state
+    const howto = document.getElementById('howto-block');
+    const betaWrap = document.getElementById('howto-beta-wrap');
+    const originalParent = document.querySelector('.page');
+    const jumpNav = document.getElementById('jump-nav');
+
+    if (isOn) {
+      // Insert howto into the beta wrap (which sits where stats panel was)
+      betaWrap.appendChild(howto);
+      buildAlphaGrid();
+      attachWordEvents(document.querySelectorAll('#alpha-grid .word'));
+      buildProgressBars();
+      showKbTip();
+    } else {
+      // Return howto to its original position before the main grids
+      const firstGrid = document.querySelector('.grid');
+      originalParent.insertBefore(howto, firstGrid);
+    }
+
+    clearTimeout(toastTimer);
+    betaToast.textContent = isOn
+      ? '✦ Beta v3 — 12 new features active'
+      : '✦ Beta features disabled';
+    betaToast.style.whiteSpace = 'pre-line';
+    betaToast.classList.add('show');
+    toastTimer = setTimeout(() => betaToast.classList.remove('show'), 2400);
+  });
+
+  // ── 1. CHANGELOG ──
+  const changelogBtn = document.getElementById('changelog-btn');
+  const changelogTab = document.getElementById('changelog-tab');
+  const changelogClose = document.getElementById('changelog-close');
+  changelogBtn.addEventListener('click', () => {
+    const open = changelogTab.classList.toggle('open');
+    changelogBtn.classList.toggle('open', open);
+  });
+  changelogClose.addEventListener('click', () => {
+    changelogTab.classList.remove('open');
+    changelogBtn.classList.remove('open');
+  });
+
+  // ── 2. FONT SIZE SLIDER ──
+  const fontSlider = document.getElementById('font-size-slider');
+  const fontVal = document.getElementById('font-size-val');
+  fontSlider.addEventListener('input', () => {
+    const pct = parseInt(fontSlider.value);
+    fontVal.textContent = pct + '%';
+    const scale = pct / 100;
+    // Apply scaling via CSS custom property on root so em-based sizes cascade
+    document.documentElement.style.setProperty('--text-scale', scale);
+    // Directly scale tags and words since they use fixed px sizes
+    const baseTag = 12, baseWord = 11;
+    document.querySelectorAll('.tag').forEach(el => {
+      el.style.fontSize = (baseTag * scale) + 'px';
+    });
+    document.querySelectorAll('.word').forEach(el => {
+      el.style.fontSize = (baseWord * scale) + 'px';
+    });
+  });
+
+  // ── 3. PHRASE BUILDER ──
+  const phraseOutput = document.getElementById('phrase-output');
+  const pbCopy = document.getElementById('pb-copy-btn');
+  const pbClear = document.getElementById('pb-clear-btn');
+
+  function attachPhraseClick(els) {
+    els.forEach(el => {
+      if (el.dataset.phraseAttached) return;
+      el.dataset.phraseAttached = '1';
+      el.addEventListener('click', () => {
+        if (!document.body.classList.contains('beta-on')) return;
+        const word = el.textContent.trim();
+        const current = phraseOutput.textContent.trim();
+        phraseOutput.textContent = current ? current + ' ' + word : word;
+        phraseOutput.scrollLeft = phraseOutput.scrollWidth;
+      });
+    });
+  }
+  attachPhraseClick(document.querySelectorAll('.word'));
+  // Also allow clicking tags to add to phrase builder
+  document.querySelectorAll('.tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      if (!document.body.classList.contains('beta-on')) return;
+      const text = Array.from(tag.childNodes)
+        .filter(n => n.nodeType === Node.TEXT_NODE)
+        .map(n => n.textContent).join('').trim();
+      if (text) phraseOutput.textContent = text;
+    });
+  });
+
+  pbCopy.addEventListener('click', () => {
+    const text = phraseOutput.textContent.trim();
+    if (!text) return;
+    navigator.clipboard.writeText(text).catch(() => {});
+    pbCopy.textContent = '✓ COPIED';
+    setTimeout(() => { pbCopy.textContent = 'COPY'; }, 1400);
+  });
+  pbClear.addEventListener('click', () => {
+    phraseOutput.textContent = '';
+    phraseOutput.focus();
+  });
+
+  // ── 4. STATS PANEL (counts from DOM) ──
+  // Already hardcoded in HTML with accurate counts from the page content
+
+  // ── 5. SECTION JUMP NAV ──
+  document.querySelectorAll('.jump-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      const id = btn.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // ── 6–8. COMPACT / RANDOM / EXPORT removed in v4 ──
+
+  // ── 9. BOOKMARK (double-click tags) ──
+  const bookmarksPanel = document.getElementById('bookmarks-panel');
+  const bookmarkSet = new Set();
+
+  function refreshBookmarksPanel() {
+    const list = bookmarksPanel.querySelector('.bm-list');
+    list.innerHTML = '';
+    bookmarkSet.forEach(text => {
+      const item = document.createElement('span');
+      item.className = 'bm-item';
+      item.textContent = text;
+      item.title = 'Click to copy';
+      item.addEventListener('click', () => {
+        navigator.clipboard.writeText(text).catch(() => {});
+        item.textContent = '✓ ' + text;
+        setTimeout(() => { item.textContent = text; }, 1000);
+      });
+      list.appendChild(item);
+    });
+    bookmarksPanel.classList.toggle('has-items', bookmarkSet.size > 0);
+  }
+
+  document.querySelectorAll('.tag').forEach(tag => {
+    tag.addEventListener('dblclick', e => {
+      if (!document.body.classList.contains('beta-on')) return;
+      e.preventDefault();
+      const text = Array.from(tag.childNodes)
+        .filter(n => n.nodeType === Node.TEXT_NODE)
+        .map(n => n.textContent).join('').trim();
+      if (!text) return;
+      if (bookmarkSet.has(text)) {
+        bookmarkSet.delete(text);
+        tag.classList.remove('bookmarked');
+      } else {
+        bookmarkSet.add(text);
+        tag.classList.add('bookmarked');
+      }
+      refreshBookmarksPanel();
+    });
+  });
+
+  // ── 10. KEYBOARD SHORTCUTS ──
+  const kbTip = document.getElementById('kb-tip');
+  let kbTipTimer;
+  function showKbTip() {
+    kbTip.classList.add('show');
+    clearTimeout(kbTipTimer);
+    kbTipTimer = setTimeout(() => kbTip.classList.remove('show'), 3500);
+  }
+  document.addEventListener('keydown', e => {
+    if (!document.body.classList.contains('beta-on')) return;
+    const searchInput = document.getElementById('search-input');
+    if (e.key === '/' && document.activeElement !== searchInput && document.activeElement !== phraseOutput) {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+    if (e.key === 'Escape') {
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input'));
+      searchInput.blur();
+    }
+  });
+
+  // ── 11. SECTION PROGRESS BARS ──
+  function buildProgressBars() {
+    const maxItems = 73; // movement has the most
+    document.querySelectorAll('.section').forEach(sec => {
+      if (sec.querySelector('.section-progress')) return;
+      const count = sec.querySelectorAll('.tag, .word').length;
+      const pct = Math.min(100, Math.round((count / maxItems) * 100));
+      const color = sec.classList.contains('c-blue') ? '#42a5f5'
+        : sec.classList.contains('c-green') ? '#66bb6a'
+        : sec.classList.contains('c-amber') ? '#ffca28'
+        : sec.classList.contains('c-teal')  ? '#26c6da'
+        : sec.classList.contains('c-purple') ? '#ab47bc'
+        : sec.classList.contains('c-coral')  ? '#ff7043'
+        : '#4fc3f7';
+      const bar = document.createElement('div');
+      bar.className = 'section-progress';
+      const fill = document.createElement('div');
+      fill.className = 'section-progress-fill';
+      fill.style.width = pct + '%';
+      fill.style.background = color;
+      fill.style.opacity = '0.5';
+      bar.appendChild(fill);
+      sec.appendChild(bar);
+    });
+  }
+
+  // ── Collapsible sections (only active when beta-on via CSS) ──
+  document.querySelectorAll('.collapsible .section-head').forEach(head => {
+    head.addEventListener('click', () => {
+      if (!document.body.classList.contains('beta-on')) return;
+      head.closest('.section').classList.toggle('collapsed');
+    });
+  });
+
+  // ── Copy button logic ──
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const tag = btn.closest('.tag');
+      const text = Array.from(tag.childNodes)
+        .filter(n => n.nodeType === Node.TEXT_NODE)
+        .map(n => n.textContent)
+        .join('').trim();
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '✓';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '⧉'; btn.classList.remove('copied'); }, 1200);
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.textContent = '✓';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '⧉'; btn.classList.remove('copied'); }, 1200);
+      });
+    });
+  });
+
+  // ── Search ──
+  const searchInput = document.getElementById('search-input');
+  const searchCount = document.getElementById('search-count');
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q) {
+      document.querySelectorAll('.search-highlight').forEach(el => el.classList.remove('search-highlight'));
+      document.querySelectorAll('.search-hidden').forEach(el => el.classList.remove('search-hidden'));
+      document.querySelectorAll('.alpha-group').forEach(g => g.style.display = '');
+      searchCount.textContent = '';
+      return;
+    }
+
+    let total = 0;
+    document.querySelectorAll('.tag').forEach(el => {
+      const text = el.textContent.trim().toLowerCase();
+      if (text.includes(q)) { el.classList.add('search-highlight'); el.classList.remove('search-hidden'); total++; }
+      else { el.classList.remove('search-highlight'); el.classList.add('search-hidden'); }
+    });
+    document.querySelectorAll('.word-grid-plain .word').forEach(el => {
+      const text = el.textContent.trim().toLowerCase();
+      if (text.includes(q)) { el.classList.add('search-highlight'); el.classList.remove('search-hidden'); total++; }
+      else { el.classList.remove('search-highlight'); el.classList.add('search-hidden'); }
+    });
+    document.querySelectorAll('#alpha-grid .word').forEach(el => {
+      const text = el.textContent.trim().toLowerCase();
+      if (text.includes(q)) { el.classList.add('search-highlight'); el.classList.remove('search-hidden'); total++; }
+      else { el.classList.remove('search-highlight'); el.classList.add('search-hidden'); }
+    });
+    document.querySelectorAll('.alpha-group').forEach(g => {
+      const anyVisible = [...g.querySelectorAll('.word')].some(w => !w.classList.contains('search-hidden'));
+      g.style.display = anyVisible ? '' : 'none';
+    });
+    searchCount.textContent = total > 0 ? total + ' found' : 'none';
+  });
+
+  // ── Tag/word focus interactions ──
+  function attachWordEvents(els) {
+    els.forEach(el => {
+      if (el.dataset.eventsAttached) return;
+      el.dataset.eventsAttached = '1';
+      el.setAttribute('tabindex', '0');
+      el.addEventListener('mousedown', () => setTimeout(() => el.focus(), 0));
+      el.addEventListener('focus', () => {
+        const sel = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      });
+      el.addEventListener('blur', () => window.getSelection().removeAllRanges());
+    });
+  }
+  attachWordEvents(document.querySelectorAll('.word, .tag'));
+</script>
+</body>
+</html>
