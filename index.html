@@ -827,6 +827,7 @@
       // attempt a restore; omit it to create a brand-new profile.
       identify(name, code){
         myName = (name || myName || randomName()).slice(0,16).toUpperCase();
+        if(code) myCode = code; // we already hold this plaintext locally — no need to wait on the server to echo it back
         return new Promise(resolve=>{
           welcomeWaiters.push(resolve);
           send(code ? "restore" : "hello", code ? { name: myName, code } : { name: myName });
@@ -1057,7 +1058,23 @@
   let codeRevealed = false;
 
   function renderIdentityCode(){
-    if(!Net.code){ identityCodeEl.textContent = "••••-••••"; identityCodeEl.classList.remove("revealed"); return; }
+    if(!Net.online){
+      identityCodeEl.textContent = "NO SERVER";
+      identityCodeEl.classList.remove("revealed");
+      return;
+    }
+    if(!Net.code){
+      if(identityEstablished){
+        // this session resumed an existing profile — the server never
+        // resends a code once issued, so there's nothing new to reveal.
+        identityCodeEl.textContent = "SAVED ALREADY";
+        identityCodeEl.classList.remove("revealed");
+      } else {
+        identityCodeEl.textContent = "••••-••••";
+        identityCodeEl.classList.remove("revealed");
+      }
+      return;
+    }
     identityCodeEl.textContent = codeRevealed ? Net.code : "••••-••••";
     identityCodeEl.classList.toggle("revealed", codeRevealed);
   }
@@ -1077,7 +1094,20 @@
     }catch(e){ /* private mode, etc */ }
   }
 
-  btnRevealCode.addEventListener("click", ()=>{
+  btnRevealCode.addEventListener("click", async ()=>{
+    if(!identityEstablished){
+      btnRevealCode.disabled = true;
+      btnRevealCode.textContent = "…";
+      await ensureIdentity();
+      btnRevealCode.disabled = false;
+    }
+    if(!Net.code){
+      // offline, or a returning player whose code the server won't resend —
+      // they already typed/saved it once; nothing new to reveal here.
+      btnRevealCode.textContent = codeRevealed ? "HIDE" : "REVEAL";
+      renderIdentityCode();
+      return;
+    }
     codeRevealed = !codeRevealed;
     btnRevealCode.textContent = codeRevealed ? "HIDE" : "REVEAL";
     renderIdentityCode();
